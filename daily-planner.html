@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日計畫</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #F8FAFC;
+    --bg3: #EFF3F8;
+    --text: #0F172A;
+    --text2: #475569;
+    --text3: #94A3B8;
+    --border: rgba(15,23,42,.08);
+    --border2: rgba(15,23,42,.16);
+    --purple: #3B82F6;
+    --purple-light: #EFF6FF;
+    --purple-dark: #2563EB;
+    --teal: #0F9D74;
+    --teal-light: #E2F7EF;
+    --green: #16A34A;
+    --green-bg: #F0FDF4;
+    --accent-grad: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
+    --accent-grad-soft: linear-gradient(135deg, #93C5FD 0%, #A5B4FC 100%);
+    --canvas: linear-gradient(160deg, #EFF6FF 0%, #F1F5F9 50%, #EEF2FF 100%);
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 3px rgba(15,23,42,.06);
+    --shadow-md: 0 6px 20px rgba(15,23,42,.09);
+    --shadow-lg: 0 16px 40px rgba(15,23,42,.13);
+    --shadow-accent: 0 10px 30px rgba(59,130,246,.30);
+    --urg-red: #EF4444;
+    --urg-red-bg: #FEF2F2;
+    --urg-orange: #F59E0B;
+    --urg-orange-bg: #FFF7ED;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0F172A;
+      --bg2: #1E293B;
+      --bg3: #293548;
+      --text: #F1F5F9;
+      --text2: #94A3B8;
+      --text3: #64748B;
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.15);
+      --purple: #60A5FA;
+      --purple-light: #1e3a5f;
+      --purple-dark: #3B82F6;
+      --teal-light: #0a3d2e;
+      --green-bg: #102a1a;
+      --canvas: linear-gradient(160deg, #0a1120 0%, #0F172A 50%, #111827 100%);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.35);
+      --shadow-md: 0 6px 20px rgba(0,0,0,.45);
+      --shadow-lg: 0 16px 40px rgba(0,0,0,.55);
+      --urg-red-bg: #3a1a1a;
+      --urg-orange-bg: #3a2a10;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--canvas); color: var(--text); font-size: 13px; height: 100vh; display: flex; align-items: stretch; justify-content: center; padding: 24px; -webkit-font-smoothing: antialiased; }
+  .app { display: grid; grid-template-columns: 92px 1fr; width: 100%; max-width: 940px; background: var(--bg); border-radius: 22px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
+
+  /* Sidebar */
+  .sidebar { background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%); border-right: 1px solid var(--border); padding: 18px 10px; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+  .nav-logo { text-align: center; font-size: 13px; font-weight: 800; letter-spacing: .04em; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 4px; border-radius: 12px; cursor: pointer; border: none; background: none; width: 100%; color: var(--text2); transition: all .18s ease; position: relative; }
+  .nav-item:hover { background: var(--bg); color: var(--text); transform: translateY(-1px); }
+  .nav-item.active { background: var(--bg); color: var(--purple); box-shadow: var(--shadow-sm); }
+  .nav-item.active::before { content: ''; position: absolute; left: 0; top: 22%; bottom: 22%; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent-grad); }
+  .nav-icon { font-size: 21px; line-height: 1; }
+  .nav-label { font-size: 10px; font-weight: 600; }
+  .nav-spacer { flex: 1; }
+  .nav-badge { min-width: 17px; height: 17px; background: var(--accent-grad); color: white; font-size: 9px; font-weight: 700; border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 0 4px; margin-top: 2px; box-shadow: var(--shadow-accent); }
+
+  /* Main */
+  .main { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .main-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .main-title { font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+  .main-sub { font-size: 12px; color: var(--text3); margin-top: 3px; font-weight: 500; }
+  .hdr-right { display: flex; gap: 8px; align-items: center; }
+  .progress-ring-wrap { display: flex; align-items: center; gap: 8px; margin-right: 4px; }
+  .progress-ring-label { font-size: 12px; color: var(--text2); line-height: 1; }
+  .progress-ring-label span { font-weight: 700; color: var(--purple); }
+  .progress-ring { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--bg3); stroke-width: 4; }
+  .ring-fill { fill: none; stroke: var(--purple); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .4s ease; }
+  .btn { font-size: 12px; padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--bg); color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 5px; font-family: inherit; font-weight: 600; transition: all .15s ease; }
+  .btn:hover { background: var(--bg2); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+  .btn.primary { background: var(--accent-grad); color: white; border: none; font-weight: 600; box-shadow: var(--shadow-accent); }
+  .btn.primary:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 12px 34px rgba(99,102,241,.45); }
+
+  .main-body { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 20px 60px; }
+  .main-body::-webkit-scrollbar { width: 4px; }
+  .main-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* Focus card */
+  .focus-card { background: linear-gradient(135deg,#F0F1FF 0%,#F5F0FF 100%); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 18px; display: flex; align-items: flex-start; gap: 14px; border: 1px solid rgba(99,102,241,.18); position: relative; overflow: hidden; }
+  .focus-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent-grad); border-radius: 4px 0 0 4px; }
+  .focus-card.all-done { background: linear-gradient(135deg,#ECFDF5,#D1FAE5); border-color: rgba(16,185,129,.25); }
+  .focus-card.all-done::before { background: linear-gradient(135deg,#10B981,#0F9D74); }
+  .fc-icon { width: 36px; height: 36px; background: var(--accent-grad); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; color: white; box-shadow: 0 4px 10px rgba(99,102,241,.3); }
+  .focus-card.all-done .fc-icon { background: linear-gradient(135deg,#10B981,#0F9D74); box-shadow: 0 4px 10px rgba(16,185,129,.3); }
+  .fc-body { flex: 1; min-width: 0; }
+  .fc-eyebrow { font-size: 10px; color: var(--purple); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; font-weight: 700; }
+  .focus-card.all-done .fc-eyebrow { color: #059669; }
+  .fc-task { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; line-height: 1.3; letter-spacing: -.01em; }
+  .fc-why { font-size: 11px; color: var(--text3); }
+  .fc-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .fc-done { font-size: 11px; font-weight: 700; padding: 6px 16px; background: var(--accent-grad); color: white; border: none; border-radius: var(--radius); cursor: pointer; box-shadow: 0 3px 8px rgba(99,102,241,.3); }
+  .fc-done:hover { filter: brightness(1.08); }
+  .fc-skip { font-size: 11px; padding: 6px 12px; background: transparent; color: var(--text3); border: 1px solid var(--border2); border-radius: var(--radius); cursor: pointer; }
+  .fc-skip:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* Sections */
+  .sec-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .sec-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -.01em; display: flex; align-items: center; gap: 9px; }
+  .sec-title::before { content: ''; width: 4px; height: 16px; border-radius: 4px; background: var(--accent-grad); }
+  .sec-count { font-size: 11px; min-width: 22px; height: 22px; background: var(--purple-light); color: var(--purple); border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 0 7px; font-weight: 700; }
+  .sec-extra { margin-left: auto; font-size: 12px; color: var(--purple); background: none; border: none; cursor: pointer; }
+  .divider { height: 0.5px; background: var(--border); margin: 16px 0; }
+
+  /* Task rows */
+  .t-row { display: flex; align-items: flex-start; gap: 11px; padding: 11px 14px; background: var(--bg); border: none; border-bottom: 1px solid var(--border); border-radius: 0; margin-bottom: 0; box-shadow: none; transition: background .12s; }
+  .t-row:first-of-type { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .t-row:last-child { border-bottom: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); margin-bottom: 0; }
+  .t-row:hover { background: #F5F6FF; box-shadow: none; transform: none; }
+  .t-row:hover .t-actions { opacity: 1; }
+  .t-row.urg-red { border-left: 3px solid var(--urg-red); }
+  .t-row.urg-orange { border-left: 3px solid var(--urg-orange); }
+  .t-rows-wrap { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 9px; background: var(--bg); }
+  .cb { width: 20px; height: 20px; border: 2px solid var(--border2); border-radius: 50%; cursor: pointer; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+  .cb:hover { border-color: var(--purple); transform: scale(1.1); }
+  .cb.chk { background: linear-gradient(135deg,#10B981,#0D9488); border-color: transparent; }
+  .cb.chk::after { content: '✓'; color: white; font-size: 11px; font-weight: 700; }
+  /* Compact done row */
+  .t-done-row { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 8px; cursor: pointer; transition: background .12s; }
+  .t-done-row:hover { background: var(--bg2); }
+  .done-check { width: 16px; height: 16px; border-radius: 50%; background: linear-gradient(135deg,#10B981,#0D9488); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .done-check::after { content: '✓'; color: white; font-size: 9px; font-weight: 700; }
+  .done-label { font-size: 12px; color: var(--text3); flex: 1; }
+  .done-undo { font-size: 10px; color: var(--text3); opacity: 0; transition: opacity .12s; padding: 1px 6px; border: 0.5px solid var(--border2); border-radius: 10px; }
+  .t-done-row:hover .done-undo { opacity: 1; }
+  .t-body { flex: 1; min-width: 0; }
+  .t-txt { font-size: 13px; line-height: 1.4; word-break: break-word; overflow-wrap: break-word; white-space: normal; }
+  .t-txt.done { text-decoration: line-through; color: var(--text3); }
+  .done-view .t-txt.done { text-decoration: none; color: var(--text); }
+  .t-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+  .pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+  .pill-w { background: var(--purple-light); color: var(--purple-dark); }
+  .pill-p { background: var(--teal-light); color: var(--teal); }
+  .pill-urg { background: #FAECE7; color: #712B13; }
+  .pill-warn { background: #FAEEDA; color: #633806; }
+  .pill-ok { background: var(--bg2); color: var(--text3); }
+  .t-actions { opacity: 0; display: flex; gap: 4px; flex-shrink: 0; transition: opacity .12s; }
+  .ic-btn { width: 26px; height: 26px; border: none; background: none; cursor: pointer; color: var(--text3); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .ic-btn:hover { background: var(--bg2); color: var(--text); }
+  .ic-btn.starred { color: var(--purple); }
+  .move-btn { font-size: 10px; padding: 2px 8px; border: 0.5px solid var(--border2); border-radius: 20px; background: var(--bg); color: var(--text2); cursor: pointer; white-space: nowrap; }
+  .move-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* Project cards */
+  .proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .proj-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; cursor: pointer; transition: border-color .12s; }
+  .proj-card:hover { border-color: var(--border2); }
+  .proj-card.sel { border-color: var(--purple); }
+  .pc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .pc-name { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .pc-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .pc-dot-w { background: var(--purple); }
+  .pc-dot-p { background: #1D9E75; }
+  .pc-pct { font-size: 11px; color: var(--text3); }
+  .pbar { height: 3px; background: var(--bg3); border-radius: 2px; overflow: hidden; margin-bottom: 5px; }
+  .pbar-w { height: 100%; background: var(--purple); border-radius: 2px; }
+  .pbar-p { height: 100%; background: #1D9E75; border-radius: 2px; }
+  .pc-dl { font-size: 10px; color: var(--text3); }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 400px; max-width: 90vw; max-height: 90vh; overflow-y: auto; border: 0.5px solid var(--border2); }
+  .modal-title { font-size: 15px; font-weight: 600; margin-bottom: 18px; }
+  .modal-field { margin-bottom: 14px; }
+  .modal-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+  .modal-field input, .modal-field select, .modal-field textarea { width: 100%; font-size: 13px; padding: 8px 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); font-family: inherit; outline: none; }
+  .modal-field input:focus, .modal-field select:focus { border-color: var(--purple); }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+  .modal-cancel { font-size: 13px; padding: 8px 16px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: none; color: var(--text2); cursor: pointer; font-family: inherit; }
+  .modal-cancel:hover { background: var(--bg2); }
+  .modal-save { font-size: 13px; font-weight: 600; padding: 8px 20px; border: none; border-radius: var(--radius); background: var(--purple); color: white; cursor: pointer; font-family: inherit; }
+  .modal-save:hover { background: var(--purple-dark); }
+
+  .t-desc { font-size: 12px; color: var(--text3); margin-top: 3px; line-height: 1.4; word-break: break-word; overflow-wrap: break-word; }
+  .subtasks { margin-top: 6px; padding-left: 4px; }
+  .sub-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+  .sub-cb { width: 14px; height: 14px; border: 1.5px solid var(--border2); border-radius: 3px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; transition: all .12s; }
+  .sub-cb:hover { border-color: var(--purple); }
+  .sub-cb.chk { background: var(--purple); border-color: var(--purple); color: white; }
+  .sub-txt { font-size: 12px; color: var(--text2); flex: 1; }
+  .sub-txt.done { text-decoration: line-through; color: var(--text3); }
+  .sub-del { opacity: 0; background: none; border: none; color: var(--text3); cursor: pointer; font-size: 13px; padding: 0 2px; }
+  .sub-row:hover .sub-del { opacity: 1; }
+  .sub-add-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .sub-add-input { flex: 1; font-size: 12px; padding: 3px 8px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); font-family: inherit; outline: none; }
+  .sub-add-input:focus { border-color: var(--purple); }
+  .sub-add-btn { font-size: 11px; padding: 3px 8px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: none; color: var(--text2); cursor: pointer; white-space: nowrap; }
+  .sub-add-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .t-expand { font-size: 11px; color: var(--text3); cursor: pointer; background: none; border: none; padding: 0; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+  .t-expand:hover { color: var(--purple); }
+  .empty { font-size: 12px; color: var(--text3); padding: 20px 0; text-align: center; }
+  .sec-toggle { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text3); font-size: 18px; line-height: 1; padding: 0 2px; transition: transform .2s, color .12s; }
+  .sec-toggle:hover { color: var(--purple); }
+  .sec-toggle.open { transform: rotate(180deg); }
+  .backlog-body { overflow: hidden; transition: max-height .25s ease; }
+  .backlog-body.collapsed { max-height: 0 !important; }
+  .done-section { margin-top: 10px; }
+  .done-toggle-row { display: flex; align-items: center; gap: 6px; padding: 4px 2px; cursor: pointer; user-select: none; }
+  .done-toggle-row:hover .done-toggle-label { color: var(--purple); }
+  .done-toggle-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .02em; }
+  .done-toggle-count { font-size: 10px; background: #D1FAE5; color: #065F46; border-radius: 20px; padding: 1px 7px; font-weight: 600; }
+  .done-toggle-arrow { font-size: 10px; color: var(--text3); transition: transform .2s; }
+  .done-toggle-arrow.open { transform: rotate(90deg); }
+  .done-list { overflow: hidden; transition: max-height .25s ease; }
+  .done-list.collapsed { max-height: 0 !important; }
+
+  /* Urgency badge on task rows */
+  .t-row.urg-red { border-left: 3px solid var(--urg-red); padding-left: 8px; }
+  .t-row.urg-orange { border-left: 3px solid var(--urg-orange); padding-left: 8px; }
+
+  /* New project overview cards */
+  /* Project editorial layout */
+  .proj-overview-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+  .proj-sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .proj-drag-placeholder { border-radius: var(--radius-lg); background: var(--purple-light); border: 2px dashed var(--purple); opacity: .5; min-height: 80px; }
+
+  /* Base card */
+  .proj-ov-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; box-shadow: var(--shadow-sm); transition: box-shadow .15s, transform .15s; position: relative; display: flex; flex-direction: column; overflow: hidden; }
+  .proj-ov-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .proj-ov-card.dragging { opacity: .3; pointer-events: none; }
+  .proj-ov-card.drop-before { outline: 2px solid var(--purple); outline-offset: 2px; }
+  .proj-ov-card.drop-after  { outline: 2px solid var(--purple); outline-offset: -2px; }
+
+  /* Card inner */
+  .poc-inner { padding: 14px 16px 13px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .poc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .poc-name { font-size: 14px; font-weight: 700; letter-spacing: -.02em; line-height: 1.3; flex: 1; }
+  .poc-hero .poc-name { font-size: 16px; }
+  .poc-badges { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .poc-urg-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; white-space: nowrap; }
+  .poc-urg-badge.red    { background: var(--urg-red-bg); color: var(--urg-red); }
+  .poc-urg-badge.orange { background: var(--urg-orange-bg); color: var(--urg-orange); }
+  .poc-mid { display: flex; align-items: center; gap: 10px; }
+  .poc-stat { display: flex; flex-direction: column; gap: 1px; }
+  .poc-stat-val { font-size: 20px; font-weight: 800; letter-spacing: -.04em; color: var(--text); line-height: 1; }
+  .poc-hero .poc-stat-val { font-size: 26px; }
+  .poc-stat-lbl { font-size: 10px; color: var(--text3); font-weight: 500; }
+  .poc-divider { width: 1px; height: 32px; background: var(--border); flex-shrink: 0; }
+  .poc-next { flex: 1; min-width: 0; }
+  .poc-next-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); margin-bottom: 3px; }
+  .poc-next-txt { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .poc-pbar-wrap { display: flex; align-items: center; gap: 8px; }
+  .poc-pbar { flex: 1; height: 4px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+  .poc-pbar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
+  .poc-pbar-fill.work     { background: var(--accent-grad); }
+  .poc-pbar-fill.personal { background: linear-gradient(135deg,#10B981,#0F9D74); }
+  .poc-pct { font-size: 10px; color: var(--text3); white-space: nowrap; width: 30px; text-align: right; }
+
+  .poc-actions { position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 2px; opacity: 0; transition: opacity .12s; }
+  .proj-ov-card:hover .poc-actions { opacity: 1; }
+  .poc-rename-btn { font-size: 12px; background: none; border: none; cursor: pointer; color: var(--text3); padding: 3px 5px; line-height: 1; border-radius: 6px; }
+  .poc-rename-btn:hover { background: var(--bg3); color: var(--purple); }
+  .poc-arrow { font-size: 16px; color: var(--text3); line-height: 1; padding: 2px 4px; }
+  .proj-drag-handle { font-size: 13px; color: var(--border2); cursor: grab; padding: 2px 4px; opacity: 0; transition: opacity .12s; }
+  .proj-ov-card:hover .proj-drag-handle { opacity: 1; color: var(--text3); }
+  .poc-rename-btn { border: none; background: none; cursor: pointer; color: var(--text3); font-size: 12px; padding: 3px 5px; border-radius: 6px; transition: color .15s; }
+  .poc-rename-btn:hover { color: var(--purple); background: var(--purple-light); }
+  .poc-arrow { font-size: 13px; color: var(--purple); opacity: 0; transition: opacity .12s; }
+  .proj-ov-card:hover .poc-arrow { opacity: 1; }
+
+  /* Family reminder */
+  .family-reminder { background: linear-gradient(135deg,#FFFBEB,#FEF9EE); border: 1px solid #FDE68A; border-radius: var(--radius-lg); padding: 12px 14px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 8px; }
+  .family-reminder-hd { font-size: 12px; font-weight: 700; color: #92400E; display: flex; align-items: center; gap: 6px; }
+  .family-reminder-items { display: flex; flex-direction: column; gap: 5px; }
+  .family-reminder-item { font-size: 12px; color: #78350F; display: flex; align-items: flex-start; gap: 6px; line-height: 1.5; }
+  .family-reminder-item .fri-dot { width: 6px; height: 6px; border-radius: 50%; background: #F59E0B; flex-shrink: 0; margin-top: 5px; }
+  .family-reminder-item.pending .fri-dot { background: #EF4444; }
+
+  /* Habit tracker */
+  .habit-cat-hd { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; padding: 12px 2px 4px; }
+  .habit-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg); margin-bottom: 10px; }
+  .habit-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; transition: background .12s; cursor: default; }
+  .habit-card:hover { background: #F5F6FF; }
+  .habit-card.dragging { opacity: .3; pointer-events: none; }
+  .habit-card.drop-before { box-shadow: 0 -2px 0 0 var(--purple) inset; }
+  .habit-card.drop-after  { box-shadow: 0 2px 0 0 var(--purple) inset; }
+  .habit-drag-handle { cursor: grab; color: var(--border2); font-size: 13px; opacity: 0; transition: opacity .12s; flex-shrink: 0; padding: 2px 4px; }
+  .habit-card:hover .habit-drag-handle { opacity: 1; color: var(--text3); }
+  .habit-emoji { font-size: 20px; flex-shrink: 0; width: 32px; text-align: center; }
+  .habit-info { flex: 1; min-width: 0; }
+  .habit-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .habit-meta { display: flex; align-items: center; gap: 6px; }
+  .habit-freq { font-size: 10px; color: var(--text3); background: var(--bg3); padding: 1px 7px; border-radius: 20px; }
+  .habit-last { font-size: 10px; color: var(--text3); }
+  .habit-last.overdue { color: var(--urg-orange); font-weight: 600; }
+  .habit-dots { display: flex; gap: 4px; align-items: center; }
+  .habit-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--bg3); border: 1.5px solid var(--border2); transition: all .15s; }
+  .habit-dot.done { background: var(--accent-grad); border-color: transparent; }
+  .habit-dot.done-green { background: linear-gradient(135deg,#10B981,#0D9488); border-color: transparent; }
+  .habit-ring-wrap { position: relative; width: 34px; height: 34px; flex-shrink: 0; }
+  .habit-ring-wrap svg { width: 34px; height: 34px; }
+  .habit-ring-ct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--text); line-height: 1; }
+  .habit-log-btn { font-size: 11px; font-weight: 600; padding: 5px 12px; background: var(--accent-grad); color: white; border: none; border-radius: var(--radius); cursor: pointer; white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 6px rgba(99,102,241,.25); transition: filter .12s; }
+  .habit-log-btn:hover { filter: brightness(1.08); }
+  .habit-log-btn.logged-today { background: linear-gradient(135deg,#10B981,#0D9488); box-shadow: 0 2px 6px rgba(16,185,129,.25); }
+  .habit-btn-group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .habit-undo-btn { font-size: 13px; padding: 4px 7px; background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); border-radius: var(--radius); cursor: pointer; line-height: 1; transition: all .12s; }
+  .habit-undo-btn:hover:not(:disabled) { background: #FEE2E2; color: #EF4444; border-color: #FCA5A5; }
+  .habit-undo-btn:disabled { opacity: 0.3; cursor: default; }
+  .habit-hist-btn { font-size: 13px; padding: 4px 6px; background: none; border: none; cursor: pointer; opacity: 0.4; transition: opacity .12s; line-height: 1; }
+  .habit-hist-btn:hover { opacity: 1; }
+  .habit-wrap { display: flex; flex-direction: column; border-bottom: 1px solid var(--border); }
+  .habit-wrap:last-child { border-bottom: none; }
+  .habit-wrap .habit-card { border-bottom: none; }
+  .habit-history { background: var(--bg2); padding: 10px 14px; border-top: 1px solid var(--border); }
+  .hh-row { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .hh-row:last-child { border-bottom: none; }
+  .hh-date { color: var(--text3); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .hh-note { color: var(--text); flex: 1; }
+  .hh-empty { font-size: 12px; color: var(--text3); text-align: center; padding: 6px 0; }
+  .hh-tag { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 10px; background: var(--bg3); color: var(--text3); flex-shrink: 0; }
+  .hh-tag.done { background: #D1FAE5; color: #065F46; }
+  .hh-actions { margin-left: auto; display: flex; gap: 4px; opacity: 0; transition: opacity .12s; flex-shrink: 0; }
+  .hh-row:hover .hh-actions { opacity: 1; }
+  .hh-act-btn { font-size: 11px; padding: 2px 6px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text2); cursor: pointer; line-height: 1.4; }
+  .hh-act-btn:hover { background: var(--bg3); }
+  .hh-act-btn.del:hover { background: #FEE2E2; color: #EF4444; border-color: #FCA5A5; }
+  .habit-edit-btn { font-size: 11px; padding: 2px 7px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text2); cursor: pointer; line-height: 1.4; }
+  .habit-edit-btn:hover { background: var(--bg3); }
+  .aspiration-card { position: relative; }
+  .aspiration-edit-btn { position: absolute; top: 8px; right: 8px; font-size: 11px; padding: 2px 6px; border: 1px solid #FDE68A; border-radius: var(--radius); background: rgba(255,255,255,0.6); color: #92400E; cursor: pointer; opacity: 0; transition: opacity .15s; }
+  .aspiration-card:hover .aspiration-edit-btn { opacity: 1; }
+  .pe-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:200; align-items:center; justify-content:center; }
+  .pe-modal-box { background:var(--bg); border-radius:var(--radius-lg); padding:24px; width:360px; max-width:90vw; border:0.5px solid var(--border2); box-shadow:var(--shadow-lg); }
+  .pe-modal-box select { width:100%; font-size:13px; padding:8px 12px; border:0.5px solid var(--border2); border-radius:var(--radius); background:var(--bg2); color:var(--text); font-family:inherit; outline:none; }
+  .hh-add-btn { font-size: 11px; font-weight: 600; color: var(--purple); background: none; border: 1px dashed var(--purple); border-radius: var(--radius); padding: 4px 10px; cursor: pointer; margin-bottom: 8px; transition: background .12s; }
+  .hh-add-btn:hover { background: var(--purple-light); }
+  .hh-sort-btn { font-size: 11px; color: var(--text3); background: none; border: 1px solid var(--border2); border-radius: var(--radius); padding: 3px 8px; cursor: pointer; transition: all .12s; }
+  .hh-sort-btn:hover { background: var(--bg3); color: var(--text); }
+
+  /* Aspirations */
+  .aspiration-grid { display: flex; flex-wrap: nowrap; gap: 8px; margin-bottom: 10px; }
+  .aspiration-card { flex: 1; min-width: 0; background: linear-gradient(135deg,#FFFBEB,#FEF3C7); border: 1px solid #FDE68A; border-radius: var(--radius-lg); padding: 14px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .aspiration-emoji { font-size: 22px; }
+  .aspiration-name { font-size: 12px; font-weight: 700; color: #92400E; }
+  .aspiration-note { font-size: 11px; color: #A16207; line-height: 1.5; }
+
+  /* Investment project mini */
+  .mini-proj-wrap { margin-bottom: 4px; }
+
+  /* Project detail back bar */
+  .proj-detail-back { display: flex; align-items: center; gap: 8px; padding: 0 0 14px; border-bottom: 0.5px solid var(--border); margin-bottom: 16px; }
+  .proj-back-btn { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; }
+  .proj-back-btn:hover { color: var(--purple); }
+  .proj-detail-title { font-size: 15px; font-weight: 600; }
+  .proj-detail-meta { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+  /* Google Calendar */
+  .gcal-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: var(--radius); cursor: pointer; border: none; background: none; width: 100%; color: var(--text3); transition: background .12s; }
+  .gcal-btn:hover { background: var(--border); }
+  .gcal-btn.connected { color: #0F6E56; }
+  .gcal-icon { font-size: 20px; line-height: 1; }
+  .gcal-label { font-size: 10px; font-weight: 500; }
+  .event-section { margin-bottom: 16px; }
+  .event-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
+  .event-row:last-child { border-bottom: none; }
+  .event-time { font-size: 11px; color: var(--text3); white-space: nowrap; min-width: 70px; margin-top: 2px; }
+  .event-body { flex: 1; min-width: 0; }
+  .event-title { font-size: 13px; line-height: 1.4; }
+  .event-cal { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .event-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  /* 緊急橫幅 */
+  .urgent-banner { background: var(--urg-red); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+  .urgent-banner-icon { font-size: 20px; flex-shrink: 0; }
+  .urgent-banner-body { flex: 1; min-width: 0; }
+  .urgent-banner-title { font-size: 12px; font-weight: 700; color: white; margin-bottom: 4px; }
+  .urgent-banner-tasks { display: flex; flex-direction: column; gap: 2px; }
+  .urgent-banner-task { font-size: 11px; color: rgba(255,255,255,.88); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .gcal-connect-bar { background: var(--teal-light); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .gcal-connect-bar span { flex: 1; font-size: 12px; color: var(--teal); }
+  .gcal-connect-bar button { font-size: 12px; padding: 5px 14px; border-radius: var(--radius); border: none; background: var(--teal); color: white; cursor: pointer; white-space: nowrap; font-family: inherit; }
+  .gcal-connect-bar button:hover { background: #085041; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="nav-logo">計畫</div>
+    <button class="nav-item active" onclick="nav('today')" id="nav-today">
+      <i class="ti ti-briefcase nav-icon" aria-hidden="true"></i>
+      <div class="nav-label">工作</div>
+      <div class="nav-badge" id="badge-today">0</div>
+    </button>
+    <button class="nav-item" onclick="nav('projects')" id="nav-projects">
+      <i class="ti ti-layout-grid nav-icon" aria-hidden="true"></i>
+      <div class="nav-label">專案</div>
+    </button>
+    <div class="nav-spacer"></div>
+    <button class="nav-item" onclick="nav('personal')" id="nav-personal">
+      <i class="ti ti-home-heart nav-icon" aria-hidden="true"></i>
+      <div class="nav-label">家庭</div>
+    </button>
+    <button class="gcal-btn" onclick="gcalToggle()" id="gcal-btn" title="連接 Google 行事曆">
+      <i class="ti ti-brand-google nav-icon gcal-icon" aria-hidden="true"></i>
+      <div class="gcal-label" id="gcal-label">行事曆</div>
+    </button>
+    <button class="nav-item" onclick="nav('done')" id="nav-done">
+      <i class="ti ti-check nav-icon" aria-hidden="true"></i>
+      <div class="nav-label">完成</div>
+    </button>
+  </div>
+
+  <div class="main">
+    <div class="main-header">
+      <div>
+        <div class="main-title" id="view-title">今日</div>
+        <div class="main-sub" id="view-sub"></div>
+      </div>
+      <div class="hdr-right">
+        <div class="progress-ring-wrap" id="progress-ring-wrap" style="display:none">
+          <svg class="progress-ring" width="36" height="36" viewBox="0 0 36 36">
+            <circle class="ring-bg" cx="18" cy="18" r="14"/>
+            <circle class="ring-fill" id="ring-fill" cx="18" cy="18" r="14" stroke-dasharray="88" stroke-dashoffset="88"/>
+          </svg>
+          <div class="progress-ring-label" id="ring-label"></div>
+        </div>
+        <button class="btn" onclick="refreshAI()" id="refresh-btn" style="display:none">
+          <i class="ti ti-refresh" aria-hidden="true"></i> 早安重整
+        </button>
+        <button class="btn primary" onclick="focusAdd()">
+          <i class="ti ti-plus" aria-hidden="true"></i> 新增任務
+        </button>
+      </div>
+    </div>
+
+    <div class="main-body" id="main-body"></div>
+
+  </div>
+</div>
+
+<div id="habit-log-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;" onclick="if(event.target===this)closeHabitLogModal()">
+  <div style="background:var(--bg);border-radius:var(--radius-lg);padding:24px;width:360px;max-width:90vw;border:0.5px solid var(--border2);box-shadow:var(--shadow-lg);">
+    <div style="font-size:15px;font-weight:600;margin-bottom:16px;">記錄這次活動</div>
+    <div class="modal-field">
+      <div class="modal-label">日期</div>
+      <input type="date" id="habit-log-date" style="width:100%;font-size:13px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;outline:none;">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">備註（成績、心得，選填）</div>
+      <textarea id="habit-log-note" rows="3" placeholder="成績、心得..." style="width:100%;font-size:13px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;outline:none;resize:vertical;" onkeydown="if(event.key==='Enter'&&event.metaKey)confirmHabitLog()"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeHabitLogModal()">取消</button>
+      <button class="modal-save" onclick="confirmHabitLog()">記錄完成 ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- 習慣編輯 modal -->
+<div class="pe-modal" id="habit-edit-modal" onclick="if(event.target===this)closeHabitEditModal()">
+  <div class="pe-modal-box">
+    <div style="font-size:15px;font-weight:600;margin-bottom:16px;">編輯習慣</div>
+    <div class="modal-field">
+      <div class="modal-label">Emoji</div>
+      <input id="he-emoji" type="text" style="width:100%;font-size:13px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;outline:none;">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">名稱</div>
+      <input id="he-name" type="text" style="width:100%;font-size:13px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;outline:none;">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">頻率</div>
+      <select id="he-freq">
+        <option value="daily">每天</option>
+        <option value="weekly">每週</option>
+        <option value="biweekly">每兩週</option>
+        <option value="monthly">每月</option>
+        <option value="quarterly">每季</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">目標次數</div>
+      <input id="he-target" type="number" min="1" max="20" style="width:100%;font-size:13px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;outline:none;">
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeHabitEditModal()">取消</button>
+      <button class="modal-save" onclick="saveHabitEdit()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 家人心願編輯 modal -->
+<div class="pe-modal" id="asp-edit-modal" onclick="if(event.target===this)closeAspEditModal()">
+  <div class="pe-modal-box">
+    <div style="font-size:15px;font-weight:600;margin-bottom:16px;">編輯家人心願</div>
+    <div class="modal-field">
+      <div class="modal-label">Emoji</div>
+      <input id="ae-emoji" type="text" style="width:100%;font-size:13px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;outline:none;">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">名稱</div>
+      <input id="ae-name" type="text" style="width:100%;font-size:13px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;outline:none;">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">說明</div>
+      <textarea id="ae-note" rows="3" style="width:100%;font-size:13px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;outline:none;resize:vertical;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeAspEditModal()">取消</button>
+      <button class="modal-save" onclick="saveAspEdit()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">新增任務</div>
+    <div class="modal-field">
+      <div class="modal-label">任務名稱</div>
+      <input id="nt" type="text" placeholder="輸入任務內容..." autocomplete="off">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">所屬專案</div>
+      <select id="np"></select>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">截止日期</div>
+      <input id="nd" type="date">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">描述（選填）</div>
+      <textarea id="ndesc" rows="2" placeholder="簡短說明這個任務..." style="resize:vertical;"></textarea>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">子任務（選填）</div>
+      <div id="modal-subtasks"></div>
+      <div class="sub-add-row" style="margin-top:6px;">
+        <input id="nsub" class="sub-add-input" type="text" placeholder="新增子任務...">
+        <button class="sub-add-btn" onclick="addModalSubtask()">+ 新增</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">取消</button>
+      <button class="modal-save" id="modal-save" onclick="addTask()">新增任務</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TODAY = new Date().toISOString().slice(0, 10);
+let currentNav = 'today';
+
+// Google Calendar — 宣告在最前面避免 TDZ 錯誤
+const GCAL_CLIENT_ID = '675059912290-b8buhb216ls8rqorc84q199bh00hu745.apps.googleusercontent.com';
+const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
+let gcalToken = null;
+let gcalEvents = [];
+let tokenClient = null;
+let filterProjId = null;
+let skipSet = new Set();
+let focusId = null;
+
+let modalSubtasks = [];
+let backlogOpen = true;
+let editingTaskId = null;
+
+let D = JSON.parse(localStorage.getItem('daily_planner_v1') || 'null') || {
+  projects: [
+    { id: 'p1', name: '八德班表系統', type: 'work', deadline: '2026-08-31' },
+    { id: 'p2', name: '家庭教育', type: 'personal', deadline: '2026-12-31' },
+    { id: 'p3', name: '運動習慣', type: 'personal', deadline: '2026-12-31' },
+    { id: 'p4', name: '釣魚', type: 'personal', deadline: '2026-12-31' },
+    { id: 'p5', name: '朋友維繫', type: 'personal', deadline: '2026-12-31' },
+  ],
+  tasks: [
+    { id: 't1', proj: 'p1', txt: '設計值班登記表單 UI', done: false, deadline: '2026-06-20', lastDone: null, pri: 3, today: true },
+    { id: 't2', proj: 'p1', txt: '自動排班邏輯實作', done: false, deadline: '2026-07-10', lastDone: null, pri: 2, today: false },
+    { id: 't3', proj: 'p1', txt: '寄信通知功能串接', done: false, deadline: '2026-07-20', lastDone: null, pri: 2, today: false },
+    { id: 't4', proj: 'p2', txt: '每週固定親子時間', done: false, deadline: '2026-12-31', lastDone: null, pri: 2, today: false },
+    { id: 't5', proj: 'p3', txt: '每週運動 3 次', done: false, deadline: '2026-12-31', lastDone: null, pri: 2, today: false },
+    { id: 't6', proj: 'p4', txt: '安排一次釣魚行程', done: false, deadline: '2026-09-30', lastDone: null, pri: 1, today: false },
+  ],
+  np: 6, nt: 7
+};
+
+function save() { localStorage.setItem('daily_planner_v1', JSON.stringify(D)); }
+
+// 一次性匯入2026年績效目標專案
+function initPdpProjects() {
+  if (localStorage.getItem('pdp_imported_2026')) return;
+  const pdpProjs = [
+    { id: 'pdp1', name: '失效分析執行', type: 'work', deadline: '2026-12-31', weight: '45%' },
+    { id: 'pdp2', name: '可靠度服務支援', type: 'work', deadline: '2026-12-31', weight: '15%' },
+    { id: 'pdp3', name: 'KPI可視化與服務滿意度', type: 'work', deadline: '2026-12-31', weight: '5%' },
+    { id: 'pdp4', name: 'FA Lab管理', type: 'work', deadline: '2026-12-31', weight: '15%' },
+    { id: 'pdp5', name: 'Connectors Database建立', type: 'work', deadline: '2026-12-31', weight: '10%' },
+    { id: 'pdp6', name: '失效案件判讀模板', type: 'work', deadline: '2026-12-31', weight: '' },
+  ];
+  const pdpTasks = [
+    // 失效分析執行
+    { proj: 'pdp1', txt: '完成每筆電性分析案件', desc: '於年底前，在預計時間內依據執行項目完成，並提供既定Template報告取得申請者認同。', deadline: '2026-12-31', pri: 3 },
+    // 可靠度服務支援
+    { proj: 'pdp2', txt: '完成可靠度服務並取得申請者認可', desc: '於年底，在預計時間內（依據執行項目）完成可靠度服務，並且取得申請者認可。', deadline: '2026-12-31', pri: 2 },
+    // KPI可視化
+    { proj: 'pdp3', txt: '建立服務滿意度回饋機制', desc: '追蹤內部同仁的回應，持續修正。目標 Q3、Q4 完成。', deadline: '2026-09-30', pri: 2 },
+    { proj: 'pdp3', txt: 'KPI可視化 (Jira評估可行性)', desc: '以Jira呈現優先評估可行性。', deadline: '2026-12-31', pri: 1 },
+    // FA Lab管理
+    { proj: 'pdp4', txt: '電性分析類儀器校正計畫', desc: '於年底前完成電性分析類儀器的校正計畫。', deadline: '2026-12-31', pri: 2 },
+    { proj: 'pdp4', txt: 'Q3完成電性治具採購', desc: 'Q3前完成電性治具的採購。', deadline: '2026-09-30', pri: 3 },
+    { proj: 'pdp4', txt: '每月Lab 5S維護', desc: '協助每個月Lab的5S完成，並通過Lab管理者的認可。', deadline: '2026-12-31', pri: 2 },
+    { proj: 'pdp4', txt: 'Lab tour 執行 (85%滿意度)', desc: '協助完成每次指派的Lab tour，目標申請者或客戶85%滿意度。', deadline: '2026-12-31', pri: 2 },
+    { proj: 'pdp4', txt: '分析儀器操作秘技文件化', desc: '整理分析儀器操作獨門秘技，形成可傳承的文件。', deadline: '2026-12-31', pri: 1 },
+    // Connectors Database
+    { proj: 'pdp5', txt: '蒐集Connectors分析資料', desc: '執行方式不侷限，建立Connectors Database。', deadline: '2026-12-31', pri: 2 },
+    // 失效案件判讀模板
+    { proj: 'pdp6', txt: '建立失效案件判讀模板技術文件', desc: '製作標準化的失效案件判讀模板，供團隊使用。', deadline: '2026-12-31', pri: 2 },
+    { proj: 'pdp6', txt: 'QMD月會分享失效案例分析', desc: '於年底在QMD月會分享一則失效案例分析與結果，可與PM搭配。', deadline: '2026-12-31', pri: 2 },
+  ];
+  // 避免重複新增（依 id 判斷）
+  const existingProjIds = D.projects.map(p => p.id);
+  pdpProjs.forEach(p => {
+    if (!existingProjIds.includes(p.id)) D.projects.push(p);
+  });
+  let tid = D.nt;
+  pdpTasks.forEach(t => {
+    D.tasks.push({ id: 't' + tid++, proj: t.proj, txt: t.txt, desc: t.desc || '', subtasks: [], done: false, deadline: t.deadline, lastDone: null, pri: t.pri || 2, today: false });
+  });
+  D.nt = tid;
+  save();
+  localStorage.setItem('pdp_imported_2026', '1');
+}
+initPdpProjects();
+
+// 重置所有任務為未完成（只執行一次）
+if (!localStorage.getItem('tasks_reset_20260613')) {
+  D.tasks.forEach(t => { t.done = false; t.today = false; t.lastDone = null; });
+  save();
+  localStorage.setItem('tasks_reset_20260613', '1');
+}
+
+// 新增英文成長個人專案
+if (!localStorage.getItem('eng_proj_added')) {
+  if (!D.projects.find(p => p.id === 'eng1')) {
+    D.projects.push({ id: 'eng1', name: '英文成長', type: 'personal', deadline: '2026-12-31' });
+    const tid1 = 't' + D.nt++;
+    const tid2 = 't' + D.nt++;
+    D.tasks.push({
+      id: tid1, proj: 'eng1', txt: '每兩週看一部英文電影',
+      desc: '選一部英文電影（不限類型），專心看完，練習聽力和語感。每兩週一次。',
+      subtasks: [], done: false, deadline: '2026-12-31', lastDone: null, pri: 2, today: false
+    });
+    D.tasks.push({
+      id: tid2, proj: 'eng1', txt: '每兩週背40個英文單字',
+      desc: '每兩週完成40個新單字的記憶與複習，可用單字卡或app輔助。',
+      subtasks: [], done: false, deadline: '2026-12-31', lastDone: null, pri: 2, today: false
+    });
+    save();
+  }
+  localStorage.setItem('eng_proj_added', '1');
+}
+
+if (!localStorage.getItem('claude_ipo_added')) {
+  if (!D.projects.find(p => p.id === 'inv1')) {
+    D.projects.push({ id: 'inv1', name: '投資觀察', type: 'personal', deadline: '2026-10-31' });
+    D.tasks.push({
+      id: 't' + D.nt++, proj: 'inv1',
+      txt: 'Claude Code 股票上市觀察',
+      desc: 'Anthropic 旗下 Claude Code 預計 2026 年 10 月上市。屆時評估是否參與認購或於上市後買進，留意上市價格與市場反應。',
+      subtasks: [
+        { id: 's_ipo1', txt: '追蹤 Anthropic IPO 相關新聞', done: false },
+        { id: 's_ipo2', txt: '評估認購或上市後買進策略', done: false },
+        { id: 's_ipo3', txt: '10 月上市後確認價格與走勢', done: false }
+      ],
+      done: false, deadline: '2026-10-31', lastDone: null, pri: 2, today: false
+    });
+    save();
+  }
+  localStorage.setItem('claude_ipo_added', '1');
+}
+
+if (!localStorage.getItem('p1_tasks_v2')) {
+  D.tasks = D.tasks.filter(t => t.proj !== 'p1');
+  const p1Tasks = [
+    { txt: '不可值班日期登記（線上勾選）', desc: '成員可在系統上線上勾選當月不能出班的日期，資料即時同步雲端。', deadline: '2026-09-30', pri: 3 },
+    { txt: '一鍵自動排班功能', desc: '管理員設定條件後，系統自動平均分配班表，避免人工計算錯誤。', deadline: '2026-09-30', pri: 3 },
+    { txt: '班表持久化雲端儲存', desc: '產生的班表儲存於雲端，任何人用任何裝置開啟都能看到最新班表。', deadline: '2026-09-30', pri: 2 },
+    { txt: '班表手動微調功能', desc: '管理員可直接點擊班表上的人名進行換人，即時更新。', deadline: '2026-10-15', pri: 2 },
+    { txt: '每月 20 號自動提醒信', desc: '系統自動在每月 20 號寄信提醒成員登記下個月不可值班日期。', deadline: '2026-10-20', pri: 2 },
+    { txt: '每月 28 號自動發送班表', desc: '系統自動在每月 28 號將下個月完整班表寄給所有成員及相關人員。', deadline: '2026-10-28', pri: 2 },
+  ];
+  p1Tasks.forEach(t => {
+    D.tasks.push({ id: 't' + D.nt++, proj: 'p1', txt: t.txt, desc: t.desc, subtasks: [], done: false, deadline: t.deadline, lastDone: null, pri: t.pri, today: false });
+  });
+  save();
+  localStorage.setItem('p1_tasks_v2', '1');
+}
+
+if (!localStorage.getItem('p1_ui_task')) {
+  D.tasks.push({ id: 't' + D.nt++, proj: 'p1', txt: '介面美編調整', desc: '整體 UI 視覺優化，包含版面配置、色彩、字型與互動細節的調整，提升使用者體驗。', subtasks: [], done: false, deadline: '2026-10-15', lastDone: null, pri: 2, today: false });
+  save();
+  localStorage.setItem('p1_ui_task', '1');
+}
+
+if (!localStorage.getItem('lab_equip_proj')) {
+  if (!D.projects.find(p => p.id === 'leq1')) {
+    D.projects.push({ id: 'leq1', name: '實驗室設備管理', type: 'work', deadline: '2026-12-31' });
+    const doneTasks = [
+      { txt: '設備清單（篩選、搜尋、新增、編輯）', desc: '含類別、廠牌→型號聯動、負責人篩選，支援搜尋、新增、編輯、查看詳情。', done: true },
+      { txt: '總覽 Dashboard', desc: 'KPI 卡片、校驗警示、預算 vs 實際進度條。', done: true },
+      { txt: '填寫實際花費', desc: '工程師輸入費用，自動對比預算，超支變紅。', done: true },
+      { txt: '校驗管理（基本功能）', desc: '基本表格、狀態標籤、可更新校驗日期與費用。', done: true },
+      { txt: '保養管理（基本功能）', desc: '基本表格、可更新保養日期與費用。', done: true },
+      { txt: '維修紀錄（基本功能）', desc: '支援新增、刪除紀錄。', done: true },
+      { txt: '預算管理（基本功能）', desc: '2025/2026 年度規劃費用總覽。', done: true },
+    ];
+    const openTasks = [
+      { txt: '校驗管理 UI 優化', desc: '頂部摘要卡、到期進度條、儀器欄合併、費用欄整合等四項優化。', pri: 3 },
+      { txt: '保養管理 UI 優化', desc: '保養管理頁面 UI 尚未討論優化方向，待規劃。', pri: 2 },
+      { txt: '維修紀錄 UI 優化', desc: '維修紀錄頁面 UI 尚未討論優化方向，待規劃。', pri: 2 },
+      { txt: '預算管理 UI 優化', desc: '預算管理頁面 UI 尚未討論優化方向，待規劃。', pri: 2 },
+      { txt: '資料持久化（串接儲存）', desc: '目前重新整理頁面資料會消失，需串接資料庫或本地儲存（localStorage / Firebase 等）。', pri: 3 },
+    ];
+    doneTasks.forEach(t => {
+      D.tasks.push({ id: 't' + D.nt++, proj: 'leq1', txt: t.txt, desc: t.desc, subtasks: [], done: true, deadline: '2026-12-31', lastDone: '2026-06-15', pri: 2, today: false });
+    });
+    openTasks.forEach(t => {
+      D.tasks.push({ id: 't' + D.nt++, proj: 'leq1', txt: t.txt, desc: t.desc, subtasks: [], done: false, deadline: '2026-12-31', lastDone: null, pri: t.pri, today: false });
+    });
+    save();
+  }
+  localStorage.setItem('lab_equip_proj', '1');
+}
+
+if (!localStorage.getItem('leq1_v2')) {
+  D.tasks = D.tasks.filter(t => t.proj !== 'leq1');
+  const proj = D.projects.find(p => p.id === 'leq1');
+  if (proj) proj.name = '實驗室設備管理系統';
+  const done = [
+    {
+      txt: '設備清單模組',
+      desc: '20 台設備完整建檔（中英文名稱、廠牌型號、財產編號、負責人）。篩選列：關鍵字搜尋 + 類別、廠牌→型號聯動、負責人 chip 篩選。支援新增 / 編輯 / 查看詳情，儀器名稱與廠牌型號整合同一欄位。',
+      subtasks: [
+        { id: 's_eq1', txt: '20 台設備資料建檔', done: true },
+        { id: 's_eq2', txt: '篩選列（關鍵字 + 類別 + 廠牌→型號 + 負責人）', done: true },
+        { id: 's_eq3', txt: '新增 / 編輯 / 查看詳情', done: true },
+      ]
+    },
+    {
+      txt: '校驗管理模組',
+      desc: '11 台設備校驗資料建檔（預計校驗日、狀態、費用）。狀態分三種：已校驗 / 校驗中 / 尚未校驗。依預計校驗日排序，含頂部摘要卡 + 類別標籤。',
+      subtasks: [
+        { id: 's_cal1', txt: '11 台校驗資料建檔', done: true },
+        { id: 's_cal2', txt: '狀態標籤（已校驗/校驗中/尚未）', done: true },
+        { id: 's_cal3', txt: '頂部摘要卡 + 類別標籤', done: true },
+      ]
+    },
+    {
+      txt: '保養管理模組',
+      desc: '4 台設備保養資料建檔（SEM/EDX、FT-IR、X-ray、Chamber）。Chamber 拆分 Q1~Q4 四筆獨立紀錄，每筆 NT$5,250。狀態分三種：已保養 / 保養中 / 尚未保養。',
+      subtasks: [
+        { id: 's_mt1', txt: 'SEM/EDX、FT-IR、X-ray 保養資料', done: true },
+        { id: 's_mt2', txt: 'Chamber Q1~Q4 拆分紀錄', done: true },
+      ]
+    },
+    {
+      txt: '維修紀錄模組（基本功能）',
+      desc: '支援新增 / 刪除維修紀錄功能。',
+      subtasks: []
+    },
+    {
+      txt: '預算管理模組',
+      desc: '2026 年度校驗與保養規劃費用，動態從資料計算。規劃 vs 實際費用對比，超支自動標紅。',
+      subtasks: [
+        { id: 's_bud1', txt: '動態費用計算', done: true },
+        { id: 's_bud2', txt: '超支自動變紅', done: true },
+      ]
+    },
+    {
+      txt: '耗材管理模組（初步）',
+      desc: '2026 採購紀錄 21 筆已匯入。常備耗材目錄建檔（設備、切片用品、電性、其他、文具）。每季預算追蹤。',
+      subtasks: [
+        { id: 's_con1', txt: '21 筆採購紀錄匯入', done: true },
+        { id: 's_con2', txt: '常備耗材目錄（5 類別）', done: true },
+        { id: 's_con3', txt: '每季預算追蹤', done: true },
+      ]
+    },
+    {
+      txt: '總覽 Dashboard',
+      desc: 'KPI 卡片（設備總數、校驗完成率、保養完成率、維修筆數）。校驗 / 保養狀態摘要 + 近期待辦。預算圓環圖（校驗、保養、耗材）。2026 年度時間軸（校驗 + 保養事件）。維修紀錄摘要。',
+      subtasks: [
+        { id: 's_db1', txt: 'KPI 卡片', done: true },
+        { id: 's_db2', txt: '預算圓環圖（三環）', done: true },
+        { id: 's_db3', txt: '2026 年度時間軸', done: true },
+      ]
+    },
+  ];
+  const open = [
+    {
+      txt: '耗材管理補齊',
+      desc: '新增耗材入口功能、報帳狀態更新功能尚未開發。總覽尚未完全整合耗材資料到時間軸。',
+      pri: 3,
+      subtasks: [
+        { id: 's_con4', txt: '新增耗材入口', done: false },
+        { id: 's_con5', txt: '報帳狀態更新功能', done: false },
+        { id: 's_con6', txt: '總覽時間軸整合耗材', done: false },
+      ]
+    },
+    {
+      txt: '資料持久化',
+      desc: '目前重新整理頁面資料會消失，需實作 localStorage 或後端資料庫串接。',
+      pri: 3, subtasks: []
+    },
+    {
+      txt: '維修紀錄 UI 優化',
+      desc: '維修紀錄頁面視覺與操作流程尚未優化，待規劃設計方向。',
+      pri: 2, subtasks: []
+    },
+    {
+      txt: '使用者權限管理',
+      desc: '目前所有人可編輯所有資料，需區分管理員 / 一般使用者權限。',
+      pri: 2, subtasks: []
+    },
+    {
+      txt: '到期提醒通知功能',
+      desc: '校驗 / 保養到期時主動發送 Email 或系統通知提醒負責人。',
+      pri: 2, subtasks: []
+    },
+    {
+      txt: '匯出報表（Excel / PDF）',
+      desc: '支援將設備清單、校驗紀錄、保養紀錄、預算摘要匯出為 Excel 或 PDF。',
+      pri: 2, subtasks: []
+    },
+    {
+      txt: '總覽 Dashboard 視覺定案',
+      desc: '目前標示為「規劃中」，需與使用者確認最終視覺設計方向後實作。',
+      pri: 1, subtasks: []
+    },
+  ];
+  done.forEach(t => {
+    D.tasks.push({ id: 't' + D.nt++, proj: 'leq1', txt: t.txt, desc: t.desc, subtasks: t.subtasks || [], done: true, deadline: '2026-12-31', lastDone: '2026-06-16', pri: 2, today: false });
+  });
+  open.forEach(t => {
+    D.tasks.push({ id: 't' + D.nt++, proj: 'leq1', txt: t.txt, desc: t.desc, subtasks: t.subtasks || [], done: false, deadline: '2026-12-31', lastDone: null, pri: t.pri, today: false });
+  });
+  save();
+  localStorage.setItem('leq1_v2', '1');
+}
+
+if (!localStorage.getItem('leq1_v3')) {
+  const exists = D.tasks.some(t => t.proj === 'leq1' && t.txt.includes('Chamber'));
+  if (!exists) {
+    D.tasks.push({ id: 't' + D.nt++, proj: 'leq1', txt: 'Chamber 使用時程與預約管理', desc: '建立 Chamber 設備的時程管理機制，讓同仁可預約使用時段，避免衝突並提升使用效率。', subtasks: [], done: false, deadline: '2026-12-31', lastDone: null, pri: 2, today: false });
+  }
+  save();
+  localStorage.setItem('leq1_v3', '1');
+}
+
+if (!localStorage.getItem('habits_v1')) {
+  if (!D.habits) D.habits = [];
+  if (!D.aspirations) D.aspirations = [];
+  if (!D.habits.length) {
+    D.habits = [
+      { id: 'h1', emoji: '🏃', name: '每週運動 3 次', freq: 'weekly', target: 3, logs: [] },
+      { id: 'h2', emoji: '👨‍👩‍👧', name: '固定親子時間', freq: 'weekly', target: 1, logs: [] },
+      { id: 'h3', emoji: '📖', name: '唸英文故事給小孩聽', freq: 'weekly', target: 3, logs: [] },
+      { id: 'h4', emoji: '🎬', name: '英文電影', freq: 'biweekly', target: 1, logs: [] },
+      { id: 'h5', emoji: '📝', name: '英文單字 40 個', freq: 'biweekly', target: 1, logs: [] },
+      { id: 'h6', emoji: '🎣', name: '釣魚', freq: 'monthly', target: 1, logs: [] },
+      { id: 'h7', emoji: '👥', name: '朋友聚會', freq: 'monthly', target: 1, logs: [] },
+    ];
+  }
+  if (!D.aspirations.length) {
+    D.aspirations = [
+      { id: 'a1', emoji: '📖', name: '小孩英文', note: '每晚唸故事書，用英文建立語感與閱讀習慣。' },
+      { id: 'a2', emoji: '⚽', name: '小孩運動', note: '固定週末戶外活動，讓運動成為生活的一部分。' },
+      { id: 'a3', emoji: '🌱', name: '小孩心態', note: '多給信心與擁抱，培養正向思維，減少比較壓力。' },
+    ];
+  }
+  save();
+  localStorage.setItem('habits_v1', '1');
+}
+if (!D.habits) D.habits = [];
+if (!D.aspirations) D.aspirations = [];
+
+if (!localStorage.getItem('habits_v2')) {
+  const h1 = D.habits.find(h => h.id === 'h1');
+  if (h1) { h1.emoji = '⛳'; h1.name = '高爾夫球'; h1.target = 1; }
+  if (!D.habits.find(h => h.id === 'h8')) {
+    const idx = D.habits.findIndex(h => h.id === 'h1');
+    D.habits.splice(idx + 1, 0, { id: 'h8', emoji: '🎯', name: '飛鏢', freq: 'weekly', target: 2, logs: [] });
+  }
+  save();
+  localStorage.setItem('habits_v2', '1');
+}
+
+if (!localStorage.getItem('habits_v3')) {
+  const h6 = D.habits.find(h => h.id === 'h6');
+  if (h6) h6.freq = 'quarterly';
+  save();
+  localStorage.setItem('habits_v3', '1');
+}
+
+if (!localStorage.getItem('habits_v4')) {
+  D.habits = (D.habits || []).filter(h => h.id !== 'h7');
+  save();
+  localStorage.setItem('habits_v4', '1');
+}
+
+if (!localStorage.getItem('habits_v6')) {
+  const h5 = (D.habits || []).find(h => h.id === 'h5');
+  if (h5) h5.freq = 'weekly';
+  save();
+  localStorage.setItem('habits_v6', '1');
+}
+
+if (!localStorage.getItem('habits_v7')) {
+  const catMap = { h1:'sport', h8:'sport', h6:'sport', h2:'family', h3:'family', h4:'growth', h5:'growth' };
+  (D.habits || []).forEach(h => { if (!h.category) h.category = catMap[h.id] || 'sport'; });
+  save();
+  localStorage.setItem('habits_v7', '1');
+}
+
+if (!localStorage.getItem('habits_v8')) {
+  const h3 = (D.habits || []).find(h => h.id === 'h3');
+  if (h3) h3.target = 2;
+  save();
+  localStorage.setItem('habits_v8', '1');
+}
+
+if (!localStorage.getItem('habits_v9')) {
+  D.habits = (D.habits || []).filter(h => h.id !== 'h2');
+  if (!D.aspirations) D.aspirations = [];
+  if (!D.aspirations.find(a => a.id === 'a4')) {
+    D.aspirations.push({ id: 'a4', emoji: '👨‍👩‍👧', name: '固定親子時間', note: '規律陪伴孩子，一起玩、一起學，建立深厚的親子關係。' });
+  }
+  save();
+  localStorage.setItem('habits_v9', '1');
+}
+
+if (!localStorage.getItem('habits_v10')) {
+  if (!D.habits.find(h => h.id === 'h9')) {
+    D.habits.push({ id: 'h9', emoji: '🧘', name: '拉筋三分鐘', freq: 'daily', target: 1, category: 'sport', logs: [] });
+  }
+  save();
+  localStorage.setItem('habits_v10', '1');
+}
+
+if (!localStorage.getItem('habits_v11')) {
+  if (!D.habits.find(h => h.id === 'h10')) {
+    D.habits.push({ id: 'h10', emoji: '💧', name: '喝水 2000cc', freq: 'daily', target: 5, category: 'sport', quickLog: true, logs: [] });
+  }
+  save();
+  localStorage.setItem('habits_v11', '1');
+}
+
+if (!localStorage.getItem('habits_v12')) {
+  const h10 = D.habits.find(h => h.id === 'h10');
+  if (h10) h10.quickLog = true;
+  save();
+  localStorage.setItem('habits_v12', '1');
+}
+
+if (!localStorage.getItem('proj_split_pdp3')) {
+  const p3 = D.projects.find(p => p.id === 'pdp3');
+  if (p3) { p3.name = 'KPI可視化'; p3.weight = '3%'; }
+  if (!D.projects.find(p => p.id === 'pdp3b')) {
+    const idx = D.projects.findIndex(p => p.id === 'pdp3');
+    D.projects.splice(idx + 1, 0, { id: 'pdp3b', name: '服務滿意度', type: 'work', deadline: '2026-12-31', weight: '2%' });
+  }
+  D.tasks.forEach(t => {
+    if (t.proj === 'pdp3' && t.txt.includes('服務滿意度')) t.proj = 'pdp3b';
+  });
+  save();
+  localStorage.setItem('proj_split_pdp3', '1');
+}
+
+if (!localStorage.getItem('habits_v5')) {
+  (D.habits || []).forEach(h => {
+    h.logs = (h.logs || []).map(entry =>
+      typeof entry === 'string' ? { date: entry, note: '' } : entry
+    );
+  });
+  save();
+  localStorage.setItem('habits_v5', '1');
+}
+
+function du(dl) { if (!dl) return 999; return Math.round((new Date(dl) - new Date(TODAY)) / 86400000); }
+function ds(ts) { if (!ts) return 999; return Math.round((new Date(TODAY) - new Date(ts)) / 86400000); }
+function score(t) {
+  const d = du(t.deadline);
+  return (d < 7 ? 50 : d < 30 ? 30 : d < 90 ? 10 : 0) +
+    (ds(t.lastDone) > 7 ? 30 : ds(t.lastDone) > 3 ? 15 : 0) +
+    (t.pri || 1) * 10 + (t.today ? 20 : 0);
+}
+function gp(id) { return D.projects.find(p => p.id === id); }
+
+function dlPill(t) {
+  if (!t.deadline || t.done) return '';
+  const d = du(t.deadline);
+  if (d <= 0) return `<span class="pill pill-urg">今天截止</span>`;
+  if (d <= 3) return `<span class="pill pill-urg">${d}天後</span>`;
+  if (d <= 14) return `<span class="pill pill-warn">${d}天後</span>`;
+  return `<span class="pill pill-ok">${d}天後</span>`;
+}
+
+function doneSection(tasks, sectionId) {
+  if (!tasks.length) return '';
+  const listId = 'done-list-' + sectionId;
+  const arrowId = 'done-arrow-' + sectionId;
+  const rows = tasks.map(t =>
+    `<div class="t-done-row" onclick="toggle('${t.id}')">
+      <div class="done-check"></div>
+      <div class="done-label">${t.txt}</div>
+      <div class="done-undo">取消完成</div>
+    </div>`
+  ).join('');
+  return `<div class="done-section">
+    <div class="done-toggle-row" onclick="toggleDoneList('${listId}','${arrowId}')">
+      <span class="done-toggle-arrow" id="${arrowId}">▶</span>
+      <span class="done-toggle-label">已完成</span>
+      <span class="done-toggle-count">${tasks.length}</span>
+    </div>
+    <div class="done-list collapsed" id="${listId}" style="max-height:0">${rows}</div>
+  </div>`;
+}
+
+function tRow(t, showMove = false) {
+  const p = gp(t.proj);
+  const pCls = p?.type === 'work' ? 'pill-w' : 'pill-p';
+  const subs = t.subtasks || [];
+  const subDone = subs.filter(s => s.done).length;
+  const subRows = subs.map(s =>
+    `<div class="sub-row">
+      <div class="sub-cb ${s.done ? 'chk' : ''}" onclick="toggleSub('${t.id}','${s.id}')">${s.done ? '✓' : ''}</div>
+      <div class="sub-txt ${s.done ? 'done' : ''}">${s.txt}</div>
+      <button class="sub-del" onclick="delSub('${t.id}','${s.id}')" aria-label="刪除子任務">×</button>
+    </div>`
+  ).join('');
+  const addSubRow = `<div class="sub-add-row">
+    <input class="sub-add-input" type="text" placeholder="新增子任務..." onkeydown="if(event.key==='Enter')addSubInline('${t.id}',this)">
+    <button class="sub-add-btn" onclick="addSubInline('${t.id}',this.previousElementSibling)">+</button>
+  </div>`;
+
+  return `<div class="t-row">
+    <div class="cb ${t.done ? 'chk' : ''}" onclick="toggle('${t.id}')">${t.done ? '<i class="ti ti-check" aria-hidden="true"></i>' : ''}</div>
+    <div class="t-body">
+      <div class="t-txt ${t.done ? 'done' : ''}">${t.txt}</div>
+      ${t.desc ? `<div class="t-desc">${t.desc}</div>` : ''}
+      <div class="t-meta">
+        ${p ? `<span class="pill ${pCls}">${p.name}</span>` : ''}
+        ${dlPill(t)}
+        ${subs.length ? `<span class="pill pill-ok">${subDone}/${subs.length} 子任務</span>` : ''}
+      </div>
+      ${subs.length || !t.done ? `<div class="subtasks">${subRows}${!t.done ? addSubRow : ''}</div>` : ''}
+    </div>
+    <div class="t-actions">
+      ${showMove && !t.done ? `<button class="move-btn" onclick="moveToday('${t.id}')">排今日</button>` : ''}
+      <button class="ic-btn" onclick="openEditModal('${t.id}')" aria-label="編輯"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+      <button class="ic-btn ${t.pri >= 3 ? 'starred' : ''}" onclick="togglePri('${t.id}')" aria-label="優先"><i class="ti ti-star" aria-hidden="true"></i></button>
+      <button class="ic-btn" onclick="del('${t.id}')" aria-label="刪除"><i class="ti ti-trash" aria-hidden="true"></i></button>
+    </div>
+  </div>`;
+}
+
+function tRowWithClass(t, showMove, extraClass) {
+  const p = gp(t.proj);
+  const subs = t.subtasks || [];
+  const subDone = subs.filter(s => s.done).length;
+  const subRows = subs.map(s =>
+    `<div class="sub-row">
+      <div class="sub-cb ${s.done ? 'chk' : ''}" onclick="toggleSub('${t.id}','${s.id}')">${s.done ? '✓' : ''}</div>
+      <div class="sub-txt ${s.done ? 'done' : ''}">${s.txt}</div>
+      <button class="sub-del" onclick="delSub('${t.id}','${s.id}')" aria-label="刪除子任務">×</button>
+    </div>`
+  ).join('');
+  const addSubRow = `<div class="sub-add-row">
+    <input class="sub-add-input" type="text" placeholder="新增子任務..." onkeydown="if(event.key==='Enter')addSubInline('${t.id}',this)">
+    <button class="sub-add-btn" onclick="addSubInline('${t.id}',this.previousElementSibling)">+</button>
+  </div>`;
+  return `<div class="t-row ${extraClass || ''}">
+    <div class="cb ${t.done ? 'chk' : ''}" onclick="toggle('${t.id}')">${t.done ? '<i class="ti ti-check" aria-hidden="true"></i>' : ''}</div>
+    <div class="t-body">
+      <div class="t-txt ${t.done ? 'done' : ''}">${t.txt}</div>
+      ${t.desc ? `<div class="t-desc">${t.desc}</div>` : ''}
+      <div class="t-meta">
+        ${dlPill(t)}
+        ${subs.length ? `<span class="pill pill-ok">${subDone}/${subs.length} 子任務</span>` : ''}
+      </div>
+      ${subs.length || !t.done ? `<div class="subtasks">${subRows}${!t.done ? addSubRow : ''}</div>` : ''}
+    </div>
+    <div class="t-actions">
+      ${showMove && !t.done ? `<button class="move-btn" onclick="moveToday('${t.id}')">排今日</button>` : ''}
+      <button class="ic-btn" onclick="openEditModal('${t.id}')" aria-label="編輯"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+      <button class="ic-btn ${t.pri >= 3 ? 'starred' : ''}" onclick="togglePri('${t.id}')" aria-label="優先"><i class="ti ti-star" aria-hidden="true"></i></button>
+      <button class="ic-btn" onclick="del('${t.id}')" aria-label="刪除"><i class="ti ti-trash" aria-hidden="true"></i></button>
+    </div>
+  </div>`;
+}
+
+function renderFocus() {
+  const open = D.tasks.filter(t => !t.done && !skipSet.has(t.id) && isWork(t));
+  if (!open.length) {
+    return `<div class="focus-card all-done">
+      <div class="fc-icon"><i class="ti ti-confetti" aria-hidden="true"></i></div>
+      <div class="fc-body">
+        <div class="fc-eyebrow">太棒了</div>
+        <div class="fc-task">今日任務全部完成！</div>
+        <div class="fc-why">好好休息，明天繼續</div>
+      </div>
+    </div>`;
+  }
+  const best = [...open].sort((a, b) => score(b) - score(a))[0];
+  focusId = best.id;
+  const d = du(best.deadline);
+  const why = [];
+  if (d <= 0) why.push('今天截止');
+  else if (d < 7) why.push(d + '天後截止');
+  else if (d < 30) why.push('本月到期');
+  if (ds(best.lastDone) > 7) why.push('超過一週沒動');
+  if (best.pri >= 3) why.push('高優先度');
+  if (best.today) why.push('已排今日');
+  return `<div class="focus-card">
+    <div class="fc-icon"><i class="ti ti-bolt" aria-hidden="true"></i></div>
+    <div class="fc-body">
+      <div class="fc-eyebrow">AI 推薦・現在做這個</div>
+      <div class="fc-task">${best.txt}</div>
+      <div class="fc-why">${why.join('　·　') || '綜合評分最高'}</div>
+      <div class="fc-actions">
+        <button class="fc-done" onclick="nowDone()">完成 ✓</button>
+        <button class="fc-skip" onclick="nowSkip()">跳過</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function isWork(t) { return gp(t.proj)?.type === 'work'; }
+
+function renderUrgentBanner() {
+  const urgent = D.tasks.filter(t => !t.done && isWork(t) && du(t.deadline) <= 3);
+  if (!urgent.length) return '';
+  const label = urgent.length === 1 ? '有 1 個任務今天或 3 天內截止！' : `有 ${urgent.length} 個任務即將截止！`;
+  return `<div class="urgent-banner">
+    <div class="urgent-banner-icon">🔥</div>
+    <div class="urgent-banner-body">
+      <div class="urgent-banner-title">${label}</div>
+      <div class="urgent-banner-tasks">
+        ${urgent.map(t => `<div class="urgent-banner-task">· ${t.txt}（${du(t.deadline) <= 0 ? '今天截止' : du(t.deadline) + ' 天後'}）</div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderToday() {
+  const todayOpen = D.tasks.filter(t => t.today && !t.done && isWork(t));
+  const todayDone = D.tasks.filter(t => t.today && t.done && isWork(t));
+  const backlog = D.tasks.filter(t => !t.today && !t.done && isWork(t));
+  document.getElementById('badge-today').textContent = todayOpen.length;
+
+  const weekday = ['日', '一', '二', '三', '四', '五', '六'][new Date().getDay()];
+  const now = new Date();
+  document.getElementById('view-sub').textContent =
+    `星期${weekday}，${now.getMonth() + 1} 月 ${now.getDate()} 日`;
+
+  // 進度環
+  const totalToday = todayOpen.length + todayDone.length;
+  const ringWrap = document.getElementById('progress-ring-wrap');
+  if (totalToday > 0) {
+    const pct = todayDone.length / totalToday;
+    const circumference = 88;
+    document.getElementById('ring-fill').style.strokeDashoffset = circumference * (1 - pct);
+    document.getElementById('ring-label').innerHTML = `<span>${todayDone.length}</span>/${totalToday}`;
+    ringWrap.style.display = 'flex';
+  } else {
+    ringWrap.style.display = 'none';
+  }
+
+  let html = renderUrgentBanner();
+  html += renderFocus();
+  html += renderGcalEvents();
+  html += `<div class="sec-hd"><div class="sec-title">今日任務</div><div class="sec-count">${todayOpen.length}</div></div>`;
+  if (todayOpen.length) {
+    html += `<div class="t-rows-wrap">${todayOpen.map(t => tRow(t, false)).join('')}</div>`;
+  } else if (!todayDone.length) {
+    html += '<div class="empty">從下方「待辦清單」點「排今日」加入</div>';
+  }
+  html += doneSection(todayDone, 'today');
+  html += '<div class="divider"></div>';
+  const backlogH = backlog.length * 80;
+  html += `<div class="sec-hd">
+    <div class="sec-title">待辦清單</div>
+    <div class="sec-count">${backlog.length}</div>
+    <button class="sec-toggle ${backlogOpen ? 'open' : ''}" onclick="toggleBacklog()" title="展開／收合">⌄</button>
+  </div>`;
+  html += `<div class="backlog-body ${backlogOpen ? '' : 'collapsed'}" id="backlog-body" style="max-height:${backlogOpen ? '9999px' : 0}">`;
+  if (backlog.length) {
+    html += `<div class="t-rows-wrap">${backlog.map(t => {
+      const d = du(t.deadline);
+      const urgCls = d <= 7 ? 'urg-red' : d <= 30 ? 'urg-orange' : '';
+      return tRowWithClass(t, true, urgCls);
+    }).join('')}</div>`;
+  } else {
+    html += '<div class="empty">沒有其他待辦</div>';
+  }
+  html += '</div>';
+  document.getElementById('main-body').innerHTML = html;
+  document.getElementById('refresh-btn').style.display = '';
+}
+
+function projUrgency(p) {
+  const tasks = D.tasks.filter(t => t.proj === p.id && !t.done);
+  if (!tasks.length) return 'green';
+  const minDays = Math.min(...tasks.map(t => du(t.deadline)));
+  const dlDays = du(p.deadline);
+  const d = Math.min(minDays, dlDays);
+  if (d <= 7) return 'red';
+  if (d <= 30) return 'orange';
+  return 'green';
+}
+
+let dragProjId = null;
+let dragPlaceholder = null;
+
+let dragHabitId = null, dragHabitTimer = null;
+function onHabitDragStart(e, id) {
+  dragHabitId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', id);
+  dragHabitTimer = setTimeout(() => {
+    dragHabitTimer = null;
+    const card = document.querySelector(`.habit-card[data-habit-id="${id}"]`);
+    if (card) card.classList.add('dragging');
+  }, 0);
+}
+function onHabitDragOver(e, id) {
+  if (!dragHabitId || dragHabitId === id) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const card = e.currentTarget;
+  const pos = e.clientY < card.getBoundingClientRect().top + card.offsetHeight / 2 ? 'before' : 'after';
+  document.querySelectorAll('.habit-card').forEach(c => c.classList.remove('drop-before','drop-after'));
+  card.classList.add(pos === 'before' ? 'drop-before' : 'drop-after');
+}
+function onHabitDrop(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (!dragHabitId || dragHabitId === id) { cleanupHabitDrag(); return; }
+  const card = e.currentTarget;
+  const pos = e.clientY < card.getBoundingClientRect().top + card.offsetHeight / 2 ? 'before' : 'after';
+  const habits = D.habits;
+  const fromIdx = habits.findIndex(h => h.id === dragHabitId);
+  let toIdx = habits.findIndex(h => h.id === id);
+  if (fromIdx === -1 || toIdx === -1) { cleanupHabitDrag(); return; }
+  const targetCat = habits[toIdx].category || 'sport';
+  const [moved] = habits.splice(fromIdx, 1);
+  toIdx = habits.findIndex(h => h.id === id);
+  moved.category = targetCat;
+  habits.splice(pos === 'before' ? toIdx : toIdx + 1, 0, moved);
+  save(); cleanupHabitDrag(); renderPersonal();
+}
+function onHabitListDragOver(e) {
+  if (!dragHabitId) return;
+  e.preventDefault();
+}
+function onHabitListDrop(e, catKey) {
+  e.preventDefault();
+  if (!dragHabitId) return;
+  const habits = D.habits;
+  const fromIdx = habits.findIndex(h => h.id === dragHabitId);
+  if (fromIdx === -1) { cleanupHabitDrag(); return; }
+  const [moved] = habits.splice(fromIdx, 1);
+  moved.category = catKey;
+  let lastCatIdx = habits.reduce((acc, h, i) => (h.category || 'sport') === catKey ? i : acc, -1);
+  habits.splice(lastCatIdx + 1, 0, moved);
+  save(); cleanupHabitDrag(); renderPersonal();
+}
+function onHabitDragEnd() { cleanupHabitDrag(); }
+function cleanupHabitDrag() {
+  if (dragHabitTimer) { clearTimeout(dragHabitTimer); dragHabitTimer = null; }
+  dragHabitId = null;
+  document.querySelectorAll('.habit-card').forEach(c => c.classList.remove('dragging','drop-before','drop-after'));
+}
+
+function projOrderFor(projects) {
+  const typeKey = projects[0]?.type === 'work' ? 'projOrderWork' : 'projOrderPersonal';
+  const saved = D[typeKey];
+  if (saved && saved.length) {
+    const ids = projects.map(p => p.id);
+    const ordered = saved.filter(id => ids.includes(id));
+    const rest = ids.filter(id => !ordered.includes(id));
+    return [...ordered, ...rest].map(id => projects.find(p => p.id === id)).filter(Boolean);
+  }
+  return [...projects].sort((a, b) => {
+    const o = { red: 0, orange: 1, green: 2 };
+    return o[projUrgency(a)] - o[projUrgency(b)];
+  });
+}
+
+function saveProjOrder(projects) {
+  const typeKey = projects[0]?.type === 'work' ? 'projOrderWork' : 'projOrderPersonal';
+  D[typeKey] = projects.map(p => p.id);
+  save();
+}
+
+function projCard(p, isHero = false) {
+  const ts = D.tasks.filter(t => t.proj === p.id);
+  const open = ts.filter(t => !t.done);
+  const done = ts.filter(t => t.done);
+  const pct = ts.length ? Math.round(done.length / ts.length * 100) : 0;
+  const urg = projUrgency(p);
+  const dlDays = du(p.deadline);
+  const urgBadge = urg === 'red'
+    ? `<span class="poc-urg-badge red">🔥 ${dlDays <= 0 ? '今天截止' : dlDays + '天後'}</span>`
+    : urg === 'orange'
+    ? `<span class="poc-urg-badge orange">⚠ ${dlDays}天後</span>`
+    : '';
+  const nextTask = [...open].sort((a, b) => score(b) - score(a))[0];
+  const fillCls = p.type === 'work' ? 'work' : 'personal';
+
+  return `<div class="proj-ov-card ${isHero ? 'poc-hero' : ''} urg-${urg}" draggable="true"
+    data-proj-id="${p.id}" data-proj-type="${p.type}"
+    ondragstart="onProjDragStart(event,'${p.id}')"
+    ondragover="onProjDragOver(event,'${p.id}')"
+    ondragleave="onProjDragLeave(event)"
+    ondrop="onProjDrop(event,'${p.id}','${p.type}')"
+    ondragend="onProjDragEnd(event)"
+    onclick="enterProject('${p.id}')">
+    <div class="poc-actions" onclick="event.stopPropagation()">
+      <div class="proj-drag-handle"><i class="ti ti-grip-vertical"></i></div>
+      <button class="poc-rename-btn" onclick="renameProject('${p.id}')" title="改名">✎</button>
+      <span class="poc-arrow">›</span>
+    </div>
+    <div class="poc-inner">
+      <div class="poc-top">
+        <div class="poc-name">${p.name}</div>
+        <div class="poc-badges">${urgBadge}</div>
+      </div>
+      <div class="poc-mid">
+        <div class="poc-stat">
+          <div class="poc-stat-val">${open.length}</div>
+          <div class="poc-stat-lbl">待辦</div>
+        </div>
+        ${done.length ? `<div class="poc-stat">
+          <div class="poc-stat-val" style="color:var(--text3)">${done.length}</div>
+          <div class="poc-stat-lbl">已完成</div>
+        </div>` : ''}
+        ${nextTask ? `<div class="poc-divider"></div>
+        <div class="poc-next">
+          <div class="poc-next-lbl">下一步</div>
+          <div class="poc-next-txt">${nextTask.txt}</div>
+        </div>` : ''}
+      </div>
+      <div class="poc-pbar-wrap">
+        <div class="poc-pbar"><div class="poc-pbar-fill ${fillCls}" style="width:${pct}%"></div></div>
+        <span class="poc-pct">${pct}%</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function projCards(projects) {
+  const sorted = projOrderFor(projects);
+  if (!sorted.length) return '<div class="empty">沒有專案</div>';
+  const [hero, ...rest] = sorted;
+  const gridId = `proj-grid-${sorted[0]?.type || 'x'}`;
+  const restHtml = rest.length
+    ? `<div class="proj-sub-grid">${rest.map(p => projCard(p, false)).join('')}</div>`
+    : '';
+  return `<div class="proj-overview-grid" id="${gridId}">
+    ${projCard(hero, true)}
+    ${restHtml}
+  </div>`;
+}
+
+function renameProject(projId) {
+  const p = D.projects.find(x => x.id === projId);
+  if (!p) return;
+  const newName = prompt('專案名稱：', p.name);
+  if (newName && newName.trim() && newName.trim() !== p.name) {
+    p.name = newName.trim();
+    save();
+    render();
+  }
+}
+
+let dragOverId = null;
+let dragOverPos = null; // 'before' | 'after'
+
+function onProjDragStart(e, projId) {
+  dragProjId = projId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', projId);
+  setTimeout(() => {
+    document.querySelector(`.proj-ov-card[data-proj-id="${projId}"]`)?.classList.add('dragging');
+  }, 0);
+}
+
+function onProjDragOver(e, projId) {
+  if (!dragProjId || dragProjId === projId) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const card = e.currentTarget;
+  const rect = card.getBoundingClientRect();
+  const pos = e.clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+  if (dragOverId !== projId || dragOverPos !== pos) {
+    dragOverId = projId;
+    dragOverPos = pos;
+    document.querySelectorAll('.proj-ov-card').forEach(c => {
+      c.classList.remove('drop-before', 'drop-after');
+    });
+    card.classList.add(pos === 'before' ? 'drop-before' : 'drop-after');
+  }
+}
+
+function onProjDragLeave(e) {
+  if (!e.currentTarget.contains(e.relatedTarget)) {
+    e.currentTarget.classList.remove('drop-before', 'drop-after');
+  }
+}
+
+function onProjDrop(e, targetId, type) {
+  e.preventDefault();
+  if (!dragProjId || dragProjId === targetId) { cleanupDrag(); return; }
+  const card = e.currentTarget;
+  const rect = card.getBoundingClientRect();
+  const dropBefore = e.clientY < rect.top + rect.height / 2;
+  const typeKey = type === 'work' ? 'projOrderWork' : 'projOrderPersonal';
+  const projs = D.projects.filter(p => p.type === type);
+  const ordered = projOrderFor(projs);
+  const fromIdx = ordered.findIndex(p => p.id === dragProjId);
+  const toIdx = ordered.findIndex(p => p.id === targetId);
+  if (fromIdx === -1 || toIdx === -1) { cleanupDrag(); return; }
+  const [moved] = ordered.splice(fromIdx, 1);
+  let insertAt = ordered.findIndex(p => p.id === targetId);
+  if (!dropBefore) insertAt++;
+  ordered.splice(insertAt, 0, moved);
+  D[typeKey] = ordered.map(p => p.id);
+  save();
+  cleanupDrag();
+  render();
+}
+
+function onProjDragEnd(e) {
+  cleanupDrag();
+}
+
+function cleanupDrag() {
+  dragProjId = null; dragOverId = null; dragOverPos = null;
+  if (dragPlaceholder) { dragPlaceholder.remove(); dragPlaceholder = null; }
+  document.querySelectorAll('.proj-ov-card').forEach(c =>
+    c.classList.remove('dragging', 'drop-before', 'drop-after'));
+}
+
+function renderProjects() {
+  const projs = D.projects.filter(p => p.type === 'work');
+  document.getElementById('main-body').innerHTML = projCards(projs);
+  document.getElementById('refresh-btn').style.display = 'none';
+}
+
+function logDate(entry) { return typeof entry === 'string' ? entry : entry.date; }
+
+function habitWeekCount(h) {
+  const now = new Date(TODAY);
+  const dow = now.getDay();
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+  const monStr = mon.toISOString().slice(0, 10);
+  return (h.logs || []).filter(e => isDoneEntry(e) && logDate(e) >= monStr).length;
+}
+function habitLastDoneStr(h) {
+  const sorted = (h.logs || []).slice().sort((a,b) => logDate(b).localeCompare(logDate(a)));
+  if (!sorted.length) return null;
+  const days = Math.round((new Date(TODAY) - new Date(logDate(sorted[0]))) / 86400000);
+  if (days === 0) return '今天';
+  if (days === 1) return '昨天';
+  return days + ' 天前';
+}
+function isDoneEntry(e) { return typeof e === 'string' || !e.type || e.type === 'done'; }
+function habitTodayCount(h) {
+  return (h.logs || []).filter(e => isDoneEntry(e) && logDate(e) === TODAY).length;
+}
+function habitPeriodDone(h) {
+  if (h.freq === 'daily') return habitTodayCount(h) >= (h.target || 1);
+  if (h.freq === 'weekly') return habitWeekCount(h) >= (h.target || 1);
+  const sorted = (h.logs || []).filter(isDoneEntry).slice().sort((a,b) => logDate(b).localeCompare(logDate(a)));
+  if (!sorted.length) return false;
+  const days = Math.round((new Date(TODAY) - new Date(logDate(sorted[0]))) / 86400000);
+  const freqDays = { biweekly: 14, monthly: 30, quarterly: 90 };
+  return days < (freqDays[h.freq] || 30);
+}
+function habitNextDays(h) {
+  const freqDays = { daily: 1, weekly: 7, biweekly: 14, monthly: 30, quarterly: 90 };
+  const sorted = (h.logs || []).slice().sort((a,b) => logDate(b).localeCompare(logDate(a)));
+  if (!sorted.length) return -99;
+  const since = Math.round((new Date(TODAY) - new Date(logDate(sorted[0]))) / 86400000);
+  return (freqDays[h.freq] || 7) - since;
+}
+function logHabit(id) {
+  const h = (D.habits || []).find(x => x.id === id);
+  if (h && h.quickLog) {
+    if (!h.logs) h.logs = [];
+    h.logs.push({ date: TODAY, note: '', type: 'done' });
+    save(); renderPersonal();
+    return;
+  }
+  openHabitLogModal(id, TODAY, false);
+}
+function openHabitLogModal(id, date, isRecord) {
+  const modal = document.getElementById('habit-log-modal');
+  modal.dataset.habitId = id;
+  modal.dataset.freeMode = isRecord ? '1' : '0';
+  document.getElementById('habit-log-date').value = date || TODAY;
+  document.getElementById('habit-log-note').value = '';
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('habit-log-note').focus(), 50);
+}
+function confirmHabitLog() {
+  const modal = document.getElementById('habit-log-modal');
+  const id = modal.dataset.habitId;
+  const note = document.getElementById('habit-log-note').value.trim();
+  const date = document.getElementById('habit-log-date').value || TODAY;
+  const freeMode = modal.dataset.freeMode === '1';
+  const editIndex = modal.dataset.editIndex !== undefined ? parseInt(modal.dataset.editIndex) : -1;
+  const h = (D.habits || []).find(x => x.id === id);
+  if (!h) return closeHabitLogModal();
+  if (!h.logs) h.logs = [];
+  const entry = { date, note, type: freeMode ? 'record' : 'done' };
+  if (editIndex >= 0) {
+    h.logs[editIndex] = entry;
+  } else {
+    h.logs.push(entry);
+  }
+  save();
+  closeHabitLogModal();
+  renderPersonal();
+  const el = document.getElementById('hh-' + id);
+  if (el) el.style.display = 'block';
+}
+function closeHabitLogModal() {
+  document.getElementById('habit-log-modal').style.display = 'none';
+  delete document.getElementById('habit-log-modal').dataset.editIndex;
+}
+function deleteHabitLog(id, idx) {
+  const h = (D.habits || []).find(x => x.id === id);
+  if (!h) return;
+  h.logs.splice(idx, 1);
+  save(); renderPersonal();
+  const el = document.getElementById('hh-' + id);
+  if (el && el.style.display !== 'none') el.style.display = 'block';
+}
+function editHabitLog(id, idx) {
+  const h = (D.habits || []).find(x => x.id === id);
+  if (!h) return;
+  const entry = h.logs[idx];
+  const modal = document.getElementById('habit-log-modal');
+  modal.dataset.habitId = id;
+  modal.dataset.editIndex = idx;
+  modal.dataset.freeMode = (typeof entry === 'object' && entry.type === 'record') ? '1' : '0';
+  document.getElementById('habit-log-date').value = logDate(entry);
+  document.getElementById('habit-log-note').value = (typeof entry === 'object' && entry.note) ? entry.note : '';
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('habit-log-note').focus(), 50);
+}
+function openHabitEditModal(id) {
+  const h = (D.habits || []).find(x => x.id === id);
+  if (!h) return;
+  document.getElementById('habit-edit-modal').dataset.habitId = id;
+  document.getElementById('he-emoji').value = h.emoji || '';
+  document.getElementById('he-name').value = h.name || '';
+  document.getElementById('he-freq').value = h.freq || 'daily';
+  document.getElementById('he-target').value = h.target || 1;
+  document.getElementById('habit-edit-modal').style.display = 'flex';
+}
+function closeHabitEditModal() {
+  document.getElementById('habit-edit-modal').style.display = 'none';
+}
+function saveHabitEdit() {
+  const id = document.getElementById('habit-edit-modal').dataset.habitId;
+  const h = (D.habits || []).find(x => x.id === id);
+  if (!h) return closeHabitEditModal();
+  h.emoji = document.getElementById('he-emoji').value.trim() || h.emoji;
+  h.name = document.getElementById('he-name').value.trim() || h.name;
+  h.freq = document.getElementById('he-freq').value;
+  h.target = Math.max(1, parseInt(document.getElementById('he-target').value) || 1);
+  save(); closeHabitEditModal(); renderPersonal();
+}
+
+function openAspEditModal(id) {
+  const a = (D.aspirations || []).find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('asp-edit-modal').dataset.aspId = id;
+  document.getElementById('ae-emoji').value = a.emoji || '';
+  document.getElementById('ae-name').value = a.name || '';
+  document.getElementById('ae-note').value = a.note || '';
+  document.getElementById('asp-edit-modal').style.display = 'flex';
+}
+function closeAspEditModal() {
+  document.getElementById('asp-edit-modal').style.display = 'none';
+}
+function saveAspEdit() {
+  const id = document.getElementById('asp-edit-modal').dataset.aspId;
+  const a = (D.aspirations || []).find(x => x.id === id);
+  if (!a) return closeAspEditModal();
+  a.emoji = document.getElementById('ae-emoji').value.trim() || a.emoji;
+  a.name = document.getElementById('ae-name').value.trim() || a.name;
+  a.note = document.getElementById('ae-note').value.trim();
+  save(); closeAspEditModal(); renderPersonal();
+}
+
+function unlogHabit(id) {
+  const h = (D.habits || []).find(x => x.id === id);
+  if (!h || !h.logs || !h.logs.length) return;
+  const sorted = h.logs.slice().sort((a,b) => logDate(b).localeCompare(logDate(a)));
+  const lastDate = logDate(sorted[0]);
+  const idx = h.logs.findIndex(e => logDate(e) === lastDate);
+  if (idx !== -1) h.logs.splice(idx, 1);
+  save(); renderPersonal();
+}
+const habitHistorySort = {};
+function toggleHabitHistory(id) {
+  const el = document.getElementById('hh-' + id);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function toggleHabitSort(id) {
+  habitHistorySort[id] = habitHistorySort[id] === 'asc' ? 'desc' : 'asc';
+  const openIds = [...document.querySelectorAll('.habit-history')]
+    .filter(el => el.style.display !== 'none')
+    .map(el => el.id.replace('hh-', ''));
+  renderPersonal();
+  openIds.forEach(hid => {
+    const el = document.getElementById('hh-' + hid);
+    if (el) el.style.display = 'block';
+  });
+}
+
+function renderPersonal() {
+  const habits = D.habits || [];
+  const aspirations = D.aspirations || [];
+  const freqLabel = { daily: '每天', weekly: '每週', biweekly: '每兩週', monthly: '每月', quarterly: '每季' };
+
+  const catDef = [
+    { key: 'sport',  label: '🏃 運動 & 嗜好' },
+    { key: 'family', label: '👨‍👩‍👧 家庭' },
+    { key: 'growth', label: '📚 自我成長' },
+  ];
+
+  let html = `<div class="sec-hd"><div class="sec-title">生活習慣</div></div>`;
+
+  // 溫馨提醒：所有尚未完成的習慣
+  const pendingAll = habits.filter(h => !habitPeriodDone(h));
+  if (pendingAll.length) {
+    const reminderItems = pendingAll.map(h => {
+      const wc = habitWeekCount(h);
+      const remain = (h.target || 1) - wc;
+      const txt = h.freq === 'weekly' && h.target > 1
+        ? `${h.emoji} ${h.name}（本週還差 ${remain} 次）`
+        : h.freq === 'daily'
+        ? `${h.emoji} ${h.name}（今天還沒做）`
+        : `${h.emoji} ${h.name}（尚未完成）`;
+      return `<div class="family-reminder-item pending"><div class="fri-dot"></div><span>${txt}</span></div>`;
+    }).join('');
+    html += `<div class="family-reminder">
+      <div class="family-reminder-hd">💛 溫馨提醒｜還沒做的項目</div>
+      <div class="family-reminder-items">${reminderItems}</div>
+    </div>`;
+  }
+
+  catDef.forEach(cat => {
+    const catHabits = habits.filter(h => (h.category || 'sport') === cat.key);
+    if (!catHabits.length) return;
+    html += `<div class="habit-cat-hd">${cat.label}</div>`;
+    html += `<div class="habit-list" ondragover="onHabitListDragOver(event)" ondrop="onHabitListDrop(event,'${cat.key}')">`;
+    catHabits.forEach(h => {
+    const isWeekly = h.freq === 'weekly';
+    const isDaily = h.freq === 'daily';
+    const weekCount = habitWeekCount(h);
+    const todayCount = habitTodayCount(h);
+    const periodCount = isDaily ? todayCount : weekCount;
+    const lastStr = habitLastDoneStr(h);
+    const nextDays = habitNextDays(h);
+    const weekDone = habitPeriodDone(h);
+    const overdue = nextDays < 0 && !isWeekly && !isDaily;
+
+    let rightHtml = '';
+    let leftDotsHtml = '';
+    if (h.target > 1) {
+      const circ = 75.4;
+      const filled = (Math.min(periodCount / h.target, 1) * circ).toFixed(1);
+      const ringColor = weekDone ? '#10B981' : '#3B82F6';
+      const ringLabel = weekDone ? '✓' : (periodCount + '/' + h.target);
+      leftDotsHtml = '<div class="habit-ring-wrap">'
+        + '<svg viewBox="0 0 32 32">'
+        + '<circle cx="16" cy="16" r="12" fill="none" stroke="var(--bg3)" stroke-width="3"/>'
+        + '<circle cx="16" cy="16" r="12" fill="none" stroke="' + ringColor + '" stroke-width="3"'
+        + ' stroke-dasharray="' + filled + ' ' + circ + '" stroke-dashoffset="18.85" stroke-linecap="round"/>'
+        + '</svg>'
+        + '<div class="habit-ring-ct">' + ringLabel + '</div>'
+        + '</div>';
+    }
+
+    let lastLabel = '';
+    if (lastStr) {
+      lastLabel = `<span class="habit-last ${overdue ? 'overdue' : ''}">${overdue ? '⚠ ' : ''}上次 ${lastStr}</span>`;
+    } else {
+      lastLabel = `<span class="habit-last overdue">尚未紀錄</span>`;
+    }
+
+    const sortAsc = habitHistorySort[h.id] === 'asc';
+    const recentLogs = (h.logs || [])
+      .map((e, i) => ({ e, i }))
+      .filter(({ e }) => typeof e === 'object' && !!e.note)
+      .sort((a, b) => sortAsc
+        ? logDate(a.e).localeCompare(logDate(b.e))
+        : logDate(b.e).localeCompare(logDate(a.e)))
+      .slice(0, 20);
+    const historyRows = recentLogs.map(({ e, i }) => {
+      const d = logDate(e);
+      const n = (typeof e === 'object' && e.note) ? e.note : '';
+      const tag = (typeof e === 'object' && e.type === 'record') ? '<span class="hh-tag">記錄</span>' : '<span class="hh-tag done">完成</span>';
+      return `<div class="hh-row">
+        ${tag}
+        <span class="hh-date">${d}</span>
+        <span class="hh-note">${n}</span>
+        <span class="hh-actions">
+          <button class="hh-act-btn" onclick="editHabitLog('${h.id}',${i})">✎</button>
+          <button class="hh-act-btn del" onclick="deleteHabitLog('${h.id}',${i})">✕</button>
+        </span>
+      </div>`;
+    }).join('') || '<div class="hh-empty">尚無記錄</div>';
+
+    html += `<div class="habit-wrap">
+    <div class="habit-card" draggable="true" data-habit-id="${h.id}"
+      ondragstart="onHabitDragStart(event,'${h.id}')"
+      ondragover="onHabitDragOver(event,'${h.id}')"
+      ondrop="onHabitDrop(event,'${h.id}')"
+      ondragend="onHabitDragEnd()">
+      <div class="habit-drag-handle"><i class="ti ti-grip-vertical"></i></div>
+      <div class="habit-emoji">${h.emoji}</div>
+      <div class="habit-info">
+        <div class="habit-name">${h.name}</div>
+        <div class="habit-meta">
+          <span class="habit-freq">${freqLabel[h.freq] || h.freq}</span>
+          ${lastLabel}
+        </div>
+      </div>
+      ${leftDotsHtml}
+      <div class="habit-btn-group">
+        <button class="habit-log-btn ${weekDone ? 'logged-today' : ''}" onclick="logHabit('${h.id}')">
+          ${weekDone ? '✓ 完成' : '做了！'}
+        </button>
+        <button class="habit-undo-btn" onclick="unlogHabit('${h.id}')" ${periodCount === 0 ? 'disabled' : ''}>取消</button>
+        <button class="habit-edit-btn" onclick="event.stopPropagation();openHabitEditModal('${h.id}')" title="編輯">✎</button>
+        <button class="habit-hist-btn" onclick="event.stopPropagation();toggleHabitHistory('${h.id}')" title="歷史記錄">📋</button>
+      </div>
+    </div>
+    <div class="habit-history" id="hh-${h.id}" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <button class="hh-add-btn" style="margin-bottom:0" onclick="openHabitLogModal('${h.id}', TODAY, true)">＋ 新增記錄</button>
+        <button class="hh-sort-btn" onclick="toggleHabitSort('${h.id}')">${sortAsc ? '⬆ 舊→新' : '⬇ 新→舊'}</button>
+      </div>
+      ${historyRows}
+    </div>
+    </div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `<div class="divider"></div>`;
+  html += `<div class="sec-hd"><div class="sec-title">家人心願</div></div>`;
+  html += `<div class="aspiration-grid">`;
+  aspirations.forEach(a => {
+    html += `<div class="aspiration-card">
+      <button class="aspiration-edit-btn" onclick="openAspEditModal('${a.id}')">✎</button>
+      <div class="aspiration-emoji">${a.emoji}</div>
+      <div class="aspiration-name">${a.name}</div>
+      <div class="aspiration-note">${a.note}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  const investProjs = D.projects.filter(p => p.type === 'personal' && p.id === 'inv1');
+  if (investProjs.length) {
+    html += `<div class="divider"></div>`;
+    html += `<div class="sec-hd"><div class="sec-title">投資追蹤</div></div>`;
+    html += `<div class="mini-proj-wrap">${projCards(investProjs)}</div>`;
+  }
+
+  document.getElementById('main-body').innerHTML = html;
+  document.getElementById('refresh-btn').style.display = 'none';
+}
+
+function enterProject(projId) {
+  filterProjId = projId;
+  const p = gp(projId);
+  prevNav = currentNav; // remember where we came from
+  currentNav = 'project-detail';
+  document.getElementById('view-title').textContent = p.name;
+  document.getElementById('view-sub').textContent = '';
+  ['today', 'projects', 'personal', 'done'].forEach(n => {
+    document.getElementById('nav-' + n)?.classList.remove('active');
+  });
+  renderProjectDetail();
+}
+
+function renderProjectDetail() {
+  const p = gp(filterProjId);
+  const backTarget = prevNav || (p?.type === 'personal' ? 'personal' : 'projects');
+  const backLabel = backTarget === 'personal' ? '家庭目標' : '專案總覽';
+  if (!p) { nav(backTarget); return; }
+  const ts = D.tasks.filter(t => t.proj === filterProjId);
+  const open = ts.filter(t => !t.done).sort((a, b) => score(b) - score(a));
+  const done = ts.filter(t => t.done);
+  const pct = ts.length ? Math.round(done.length / ts.length * 100) : 0;
+  const fillCls = p.type === 'work' ? 'work' : 'personal';
+
+  let html = `<div class="proj-detail-back">
+    <button class="proj-back-btn" onclick="nav('${backTarget}')"><i class="ti ti-arrow-left"></i> ${backLabel}</button>
+    <div class="proj-detail-title">${p.name}</div>
+    <div class="proj-detail-meta">${pct}% 完成</div>
+  </div>`;
+  html += `<div class="poc-progress" style="margin-bottom:16px;">
+    <div class="poc-pbar"><div class="poc-pbar-fill ${fillCls}" style="width:${pct}%"></div></div>
+    <div class="poc-pct">${done.length}/${ts.length}</div>
+  </div>`;
+  html += `<div class="sec-hd"><div class="sec-title">待辦任務</div><div class="sec-count">${open.length}</div></div>`;
+  if (open.length) {
+    html += open.map(t => {
+      const d = du(t.deadline);
+      const urgCls = d <= 7 ? 'urg-red' : d <= 30 ? 'urg-orange' : '';
+      return tRowWithClass(t, true, urgCls);
+    }).join('');
+  } else {
+    html += '<div class="empty">這個專案沒有待辦任務</div>';
+  }
+  if (done.length) {
+    html += doneSection(done, 'proj-' + done[0]?.proj);
+  }
+  document.getElementById('main-body').innerHTML = html;
+  document.getElementById('refresh-btn').style.display = 'none';
+}
+
+function renderDone() {
+  const done = D.tasks.filter(t => t.done);
+  let html = `<div class="sec-hd"><div class="sec-title">已完成</div><div class="sec-count">${done.length}</div></div>`;
+  html += done.length ? `<div class="done-view">${done.map(t => tRow(t)).join('')}</div>` : '<div class="empty">還沒有完成的任務</div>';
+  document.getElementById('main-body').innerHTML = html;
+  document.getElementById('refresh-btn').style.display = 'none';
+}
+
+let prevNav = null;
+
+function nav(name) {
+  prevNav = currentNav !== 'project-detail' ? currentNav : prevNav;
+  currentNav = name;
+  filterProjId = null;
+  ['today', 'projects', 'personal', 'done'].forEach(n => {
+    document.getElementById('nav-' + n)?.classList.toggle('active', n === name);
+  });
+  const titles = { today: '工作・今日', projects: '工作・專案總覽', personal: '家庭與個人目標', done: '已完成' };
+  document.getElementById('view-title').textContent = titles[name] || '';
+  if (name !== 'today') document.getElementById('view-sub').textContent = '';
+  render();
+}
+
+function toggleBacklog() { backlogOpen = !backlogOpen; renderToday(); }
+function toggleDoneList(listId, arrowId) {
+  const list = document.getElementById(listId);
+  const arrow = document.getElementById(arrowId);
+  const isOpen = !list.classList.contains('collapsed');
+  if (isOpen) {
+    list.style.maxHeight = list.scrollHeight + 'px';
+    requestAnimationFrame(() => { list.style.maxHeight = '0'; list.classList.add('collapsed'); });
+    arrow.classList.remove('open');
+  } else {
+    list.classList.remove('collapsed');
+    list.style.maxHeight = list.scrollHeight + 'px';
+    arrow.classList.add('open');
+    setTimeout(() => { list.style.maxHeight = 'none'; }, 260);
+  }
+}
+function filterProj(id) { filterProjId = id; render(); }
+function refreshAI() { skipSet.clear(); focusId = null; render(); }
+
+function render() {
+  updateProjSelect();
+  if (currentNav === 'today') renderToday();
+  else if (currentNav === 'projects') renderProjects();
+  else if (currentNav === 'personal') renderPersonal();
+  else if (currentNav === 'project-detail') renderProjectDetail();
+  else renderDone();
+}
+
+function updateProjSelect() {
+  const work = D.projects.filter(p => p.type === 'work');
+  const personal = D.projects.filter(p => p.type === 'personal');
+  document.getElementById('np').innerHTML =
+    `<optgroup label="── 工作專案 ──">${work.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}</optgroup>` +
+    `<optgroup label="── 家庭與個人 ──">${personal.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}</optgroup>`;
+}
+
+function toggle(id) {
+  const t = D.tasks.find(t => t.id === id);
+  t.done = !t.done;
+  if (t.done) { t.lastDone = TODAY; t.today = false; }
+  save(); render();
+}
+function togglePri(id) { const t = D.tasks.find(t => t.id === id); if (t) t.pri = t.pri >= 3 ? 1 : 3; save(); render(); }
+function moveToday(id) { const t = D.tasks.find(t => t.id === id); if (t) t.today = true; save(); render(); }
+function del(id) { D.tasks = D.tasks.filter(t => t.id !== id); save(); render(); }
+
+function nowDone() {
+  if (!focusId) return;
+  const t = D.tasks.find(t => t.id === focusId);
+  if (t) { t.done = true; t.lastDone = TODAY; t.today = false; }
+  skipSet.delete(focusId); focusId = null;
+  save(); render();
+}
+function nowSkip() { if (focusId) skipSet.add(focusId); focusId = null; renderToday(); }
+
+function addModalSubtask() {
+  const inp = document.getElementById('nsub');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  modalSubtasks.push({ id: 's' + Date.now(), txt, done: false });
+  inp.value = '';
+  renderModalSubtasks();
+}
+
+function renderModalSubtasks() {
+  document.getElementById('modal-subtasks').innerHTML = modalSubtasks.map((s, i) =>
+    `<div class="sub-row">
+      <div class="sub-cb ${s.done ? 'chk' : ''}" onclick="modalSubtasks[${i}].done=!modalSubtasks[${i}].done;renderModalSubtasks()">${s.done ? '✓' : ''}</div>
+      <div class="sub-txt ${s.done ? 'done' : ''}">${s.txt}</div>
+      <button class="sub-del" onclick="modalSubtasks.splice(${i},1);renderModalSubtasks()">×</button>
+    </div>`
+  ).join('');
+}
+
+function addTask() {
+  const txt = document.getElementById('nt').value.trim();
+  if (!txt) return;
+  if (editingTaskId) {
+    // 編輯模式
+    const t = D.tasks.find(t => t.id === editingTaskId);
+    if (t) {
+      t.txt = txt;
+      t.proj = document.getElementById('np').value;
+      t.deadline = document.getElementById('nd').value || null;
+      t.desc = document.getElementById('ndesc').value.trim();
+      t.subtasks = [...modalSubtasks];
+    }
+  } else {
+    // 新增模式
+    D.tasks.push({
+      id: 't' + D.nt++,
+      proj: document.getElementById('np').value,
+      txt,
+      desc: document.getElementById('ndesc').value.trim(),
+      subtasks: [...modalSubtasks],
+      done: false,
+      deadline: document.getElementById('nd').value || null,
+      lastDone: null, pri: 2,
+      today: currentNav === 'today'
+    });
+  }
+  resetModal();
+  save(); render();
+}
+
+function resetModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.getElementById('modal-title').textContent = '新增任務';
+  document.getElementById('modal-save').textContent = '新增任務';
+  document.getElementById('nt').value = '';
+  document.getElementById('nd').value = '';
+  document.getElementById('ndesc').value = '';
+  editingTaskId = null;
+  modalSubtasks = [];
+  renderModalSubtasks();
+}
+
+function openEditModal(id) {
+  const t = D.tasks.find(t => t.id === id);
+  if (!t) return;
+  editingTaskId = id;
+  updateProjSelect();
+  document.getElementById('modal-title').textContent = '編輯任務';
+  document.getElementById('modal-save').textContent = '儲存';
+  document.getElementById('nt').value = t.txt;
+  document.getElementById('np').value = t.proj;
+  document.getElementById('nd').value = t.deadline || '';
+  document.getElementById('ndesc').value = t.desc || '';
+  modalSubtasks = (t.subtasks || []).map(s => ({ ...s }));
+  renderModalSubtasks();
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('nt').focus(), 50);
+}
+
+function focusAdd() {
+  editingTaskId = null;
+  updateProjSelect();
+  document.getElementById('modal-title').textContent = '新增任務';
+  document.getElementById('modal-save').textContent = '新增任務';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('nt').focus(), 50);
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  resetModal();
+}
+
+function toggleSub(taskId, subId) {
+  const t = D.tasks.find(t => t.id === taskId);
+  if (!t) return;
+  const s = (t.subtasks || []).find(s => s.id === subId);
+  if (s) s.done = !s.done;
+  save(); render();
+}
+
+function delSub(taskId, subId) {
+  const t = D.tasks.find(t => t.id === taskId);
+  if (!t) return;
+  t.subtasks = (t.subtasks || []).filter(s => s.id !== subId);
+  save(); render();
+}
+
+function addSubInline(taskId, input) {
+  const txt = input.value.trim();
+  if (!txt) return;
+  const t = D.tasks.find(t => t.id === taskId);
+  if (!t) return;
+  if (!t.subtasks) t.subtasks = [];
+  t.subtasks.push({ id: 's' + Date.now(), txt, done: false });
+  input.value = '';
+  save(); render();
+}
+
+document.getElementById('nt').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+document.getElementById('nsub').addEventListener('keydown', e => { if (e.key === 'Enter') addModalSubtask(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+render();
+
+// ── Google Calendar 整合 ──────────────────────────────
+
+function gcalInit() {
+  if (!window.google) { setTimeout(gcalInit, 500); return; }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GCAL_CLIENT_ID,
+    scope: GCAL_SCOPE,
+    callback: async (resp) => {
+      if (resp.error) { console.error(resp); return; }
+      gcalToken = resp.access_token;
+      localStorage.setItem('gcal_token', gcalToken);
+      updateGcalBtn(true);
+      await fetchCalendarEvents();
+      if (currentNav === 'today') render();
+    },
+  });
+  const saved = localStorage.getItem('gcal_token');
+  if (saved) {
+    gcalToken = saved;
+    updateGcalBtn(true);
+    fetchCalendarEvents().then(() => { if (currentNav === 'today') render(); });
+  }
+}
+
+function gcalToggle() {
+  if (gcalToken) {
+    google.accounts.oauth2.revoke(gcalToken, () => {});
+    gcalToken = null; gcalEvents = [];
+    localStorage.removeItem('gcal_token');
+    updateGcalBtn(false);
+    if (currentNav === 'today') render();
+    return;
+  }
+  if (!window.google) { alert('❌ Google 腳本未載入\n請確認網路連線正常後重新整理頁面。'); return; }
+  if (!tokenClient) { alert('❌ OAuth 尚未初始化\n請等幾秒後再試，或重新整理頁面。'); return; }
+  console.log('requesting token, origin:', location.origin);
+  tokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+function updateGcalBtn(connected) {
+  const btn = document.getElementById('gcal-btn');
+  const lbl = document.getElementById('gcal-label');
+  if (connected) {
+    btn.classList.add('connected');
+    lbl.textContent = '已連接';
+  } else {
+    btn.classList.remove('connected');
+    lbl.textContent = '行事曆';
+  }
+}
+
+async function fetchCalendarEvents() {
+  if (!gcalToken) return;
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const end = new Date(); end.setHours(23, 59, 59, 999);
+  const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=20`;
+  try {
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${gcalToken}` } });
+    if (res.status === 401) {
+      gcalToken = null; localStorage.removeItem('gcal_token');
+      updateGcalBtn(false); gcalEvents = [];
+      if (currentNav === 'today') render();
+      return;
+    }
+    const data = await res.json();
+    gcalEvents = data.items || [];
+    console.log('gcal events fetched:', gcalEvents.length, gcalEvents.map(e => e.summary));
+  } catch (e) { console.error('gcal fetch error', e); }
+}
+
+function renderGcalEvents() {
+  if (!gcalToken) {
+    return `<div class="gcal-connect-bar">
+      <span>連接 Google 行事曆，顯示今日行程</span>
+      <button onclick="gcalToggle()">連接</button>
+    </div>`;
+  }
+  if (!gcalEvents.length) return `<div class="event-section"><div class="sec-hd"><div class="sec-title">今日行程</div></div><div class="empty">今天沒有 Google 行事曆行程</div><div class="divider"></div></div>`;
+  const rows = gcalEvents.map(ev => {
+    const start = ev.start.dateTime || ev.start.date;
+    const isAllDay = !ev.start.dateTime;
+    const timeStr = isAllDay ? '全天' : new Date(start).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const color = ev.colorId ? `hsl(${parseInt(ev.colorId) * 37}, 60%, 55%)` : '#534AB7';
+    return `<div class="event-row">
+      <div class="event-dot" style="background:${color}"></div>
+      <div class="event-time">${timeStr}</div>
+      <div class="event-body">
+        <div class="event-title">${ev.summary || '（無標題）'}</div>
+        ${ev.location ? `<div class="event-cal">${ev.location}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="event-section">
+    <div class="sec-hd"><div class="sec-title">今日行程</div><div class="sec-count">${gcalEvents.length}</div></div>
+    ${rows}
+    <div class="divider"></div>
+  </div>`;
+}
+
+window.addEventListener('load', gcalInit);
+</script>
+</body>
+</html>
